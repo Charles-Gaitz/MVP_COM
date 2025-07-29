@@ -16,13 +16,33 @@ function App() {
               <span className="text-xl font-bold">TexasCommunities</span>
             </Link>
             
-            {/* About Link */}
-            <Link 
-              to="/about" 
-              className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
-            >
-              About
-            </Link>
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-6">
+              <Link 
+                to="/explore" 
+                className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
+              >
+                Explore
+              </Link>
+              <Link 
+                to="/favorites" 
+                className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
+              >
+                Favorites
+              </Link>
+              <Link 
+                to="/reports" 
+                className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
+              >
+                Reports
+              </Link>
+              <Link 
+                to="/about" 
+                className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200"
+              >
+                About
+              </Link>
+            </div>
           </div>
         </div>
       </nav>
