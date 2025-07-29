@@ -245,10 +245,10 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
 
           {/* Comparison Table */}
           {selectedCommunities.length > 0 && (
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead>
+                  <thead className="sticky top-0 bg-white z-10">
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-3 px-4 font-semibold text-gray-900 bg-gray-50">
                         Criteria
@@ -262,8 +262,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {/* Basic Info */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Type</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Type</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium ${
@@ -277,8 +277,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Region</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Region</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center text-gray-700">
                           {community.region}
@@ -287,8 +287,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Housing */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">
                         <div className="flex items-center">
                           <DollarSign className="h-4 w-4 mr-2 text-green-600" />
                           Median Home Price
@@ -302,8 +302,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Demographics */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">
                         <div className="flex items-center">
                           <Users className="h-4 w-4 mr-2 text-blue-600" />
                           Population
@@ -317,8 +317,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Safety */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">
                         <div className="flex items-center">
                           <Shield className="h-4 w-4 mr-2 text-red-600" />
                           Crime Rate (per 1000)
@@ -334,8 +334,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Transportation */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">
                         <div className="flex items-center">
                           <Car className="h-4 w-4 mr-2 text-gray-600" />
                           Avg Commute (min)
@@ -348,8 +348,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">
                         <div className="flex items-center">
                           <TreePine className="h-4 w-4 mr-2 text-green-600" />
                           Walk Score
@@ -365,8 +365,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Schools */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Elementary Schools</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Elementary Schools</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.schools.elementary)}`}>
@@ -376,8 +376,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Middle Schools</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Middle Schools</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.schools.middle)}`}>
@@ -387,8 +387,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">High Schools</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">High Schools</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.schools.high)}`}>
@@ -399,8 +399,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Amenities */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Parks & Recreation</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Parks & Recreation</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.amenities.parks)}`}>
@@ -410,8 +410,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Restaurants</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Restaurants</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.amenities.restaurants)}`}>
@@ -421,8 +421,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Shopping</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Shopping</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.amenities.shopping)}`}>
@@ -432,8 +432,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                       ))}
                     </tr>
 
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Healthcare</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Healthcare</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <span className={`font-semibold ${getScoreColor(community.amenities.healthcare)}`}>
@@ -444,8 +444,8 @@ export const ComparisonTool: React.FC<ComparisonToolProps> = ({
                     </tr>
 
                     {/* Key Features */}
-                    <tr>
-                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-50">Key Features</td>
+                    <tr className="odd:bg-white even:bg-gray-50">
+                      <td className="py-3 px-4 font-medium text-gray-900 bg-gray-100">Key Features</td>
                       {selectedCommunities.map((community) => (
                         <td key={community.id} className="py-3 px-4 text-center">
                           <div className="flex flex-wrap justify-center gap-1">

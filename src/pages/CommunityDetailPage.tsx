@@ -1,33 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, MapPin, ChevronDown, ChevronUp, Home, GraduationCap, Users, Clock, Heart } from 'lucide-react';
 import { CommunityReviews } from '../components/CommunityReviews';
+import { LeadCaptureModal } from '../components/LeadCaptureModal';
+import { SimilarCommunities } from '../components/SimilarCommunities';
+import { MarketTrends } from '../components/MarketTrends';
+import { SchoolDistrictDetails } from '../components/SchoolDistrictDetails';
+import { TrafficPatterns } from '../components/TrafficPatterns';
+import { NearbyAmenities } from '../components/NearbyAmenities';
+import { EmploymentData } from '../components/EmploymentData';
+import { ClimateWeather } from '../components/ClimateWeather';
+import { PhotoGalleries } from '../components/PhotoGalleries';
+import { VirtualTours } from '../components/VirtualTours';
+import { CommunityEvents } from '../components/CommunityEvents';
 
 function CommunityDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: ''
-  });
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadCaptureType, setLeadCaptureType] = useState<'contact_realtor' | 'schedule_tour' | 'get_pricing' | 'mortgage_calc'>('contact_realtor');
 
   const toggleSection = (section: string) => {
     setExpandedSection(expandedSection === section ? null : section);
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Handle form submission here
   };
 
   // Load favorites from localStorage on component mount
@@ -330,78 +325,169 @@ function CommunityDetailPage() {
           </div>
         </div>
 
+        {/* Enhanced Community Data & Insights */}
+        
+        {/* Market Trends */}
+        <MarketTrends 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* School District Details */}
+        <SchoolDistrictDetails 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Traffic Patterns */}
+        <TrafficPatterns 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Nearby Amenities */}
+        <NearbyAmenities 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Employment Data */}
+        <EmploymentData 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Climate & Weather */}
+        <ClimateWeather 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Interactive Features */}
+        
+        {/* Photo Galleries */}
+        <PhotoGalleries 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Virtual Tours */}
+        <VirtualTours 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
+        {/* Community Events */}
+        <CommunityEvents 
+          communityId={id || ''} 
+          communityName={communityData.name}
+        />
+
         {/* Community Reviews */}
         <CommunityReviews 
           communityId={id || ''} 
           communityName={communityData.name}
         />
 
-        {/* CTA Panel - Connect with Realtor */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-          <div className="text-center mb-6">
-            <Users className="h-12 w-12 text-blue-900 mx-auto mb-4" />
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">Connect with a Local Realtor</h3>
-            <p className="text-gray-600">Get personalized insights and schedule a tour of {communityData.name}</p>
+        {/* Similar Communities */}
+        <SimilarCommunities 
+          currentCommunityId={id || ''} 
+          currentCommunityName={communityData.name}
+        />
+
+        {/* CTA Panel - Lead Generation Hub */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg text-white p-8">
+          <div className="text-center mb-8">
+            <Users className="h-12 w-12 text-blue-200 mx-auto mb-4" />
+            <h3 className="text-3xl font-bold mb-2">Ready to Explore {communityData.name}?</h3>
+            <p className="text-blue-100 text-lg">Connect with local experts and get the information you need</p>
           </div>
           
-          <form onSubmit={handleSubmit} className="max-w-md mx-auto space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Full Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200"
-                placeholder="Enter your full name"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email Address
-              </label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200"
-                placeholder="Enter your email"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200"
-                placeholder="Enter your phone number"
-              />
-            </div>
-            
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             <button
-              type="submit"
-              className="w-full px-6 py-3 text-white bg-blue-900 hover:bg-blue-800 rounded-lg font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:ring-offset-2"
+              onClick={() => {
+                setLeadCaptureType('contact_realtor');
+                setShowLeadCapture(true);
+              }}
+              className="bg-white text-blue-700 p-6 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm group"
             >
-              Connect with Realtor
+              <div className="flex items-center justify-center mb-3">
+                <Users className="h-8 w-8 text-blue-600 group-hover:text-blue-700" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Talk to Local Realtor</h4>
+              <p className="text-sm text-blue-600">Get expert insights about {communityData.name} and schedule a personal tour</p>
+              <div className="mt-3 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full inline-block">
+                🎯 Generates Qualified Lead
+              </div>
             </button>
-          </form>
+
+            <button
+              onClick={() => {
+                setLeadCaptureType('get_pricing');
+                setShowLeadCapture(true);
+              }}
+              className="bg-white text-blue-700 p-6 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm group"
+            >
+              <div className="flex items-center justify-center mb-3">
+                <Home className="h-8 w-8 text-blue-600 group-hover:text-blue-700" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Get Current Prices</h4>
+              <p className="text-sm text-blue-600">View available homes and current market prices in this community</p>
+              <div className="mt-3 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full inline-block">
+                💰 High-Value Lead
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setLeadCaptureType('schedule_tour');
+                setShowLeadCapture(true);
+              }}
+              className="bg-white text-blue-700 p-6 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm group"
+            >
+              <div className="flex items-center justify-center mb-3">
+                <MapPin className="h-8 w-8 text-blue-600 group-hover:text-blue-700" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Schedule Community Tour</h4>
+              <p className="text-sm text-blue-600">Book a guided tour to see homes and amenities in person</p>
+              <div className="mt-3 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full inline-block">
+                🔥 Hot Lead Alert
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setLeadCaptureType('mortgage_calc');
+                setShowLeadCapture(true);
+              }}
+              className="bg-white text-blue-700 p-6 rounded-lg hover:bg-blue-50 transition-all duration-200 shadow-sm group"
+            >
+              <div className="flex items-center justify-center mb-3">
+                <GraduationCap className="h-8 w-8 text-blue-600 group-hover:text-blue-700" />
+              </div>
+              <h4 className="font-bold text-lg mb-2">Mortgage Consultation</h4>
+              <p className="text-sm text-blue-600">Speak with a mortgage specialist about financing options</p>
+              <div className="mt-3 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded-full inline-block">
+                🏦 Finance Lead
+              </div>
+            </button>
+          </div>
+
+          <div className="text-center mt-6">
+            <p className="text-blue-200 text-sm">
+              ✅ Free consultations • ✅ No obligations • ✅ Local market experts
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        communityName={communityData.name}
+        trigger={leadCaptureType}
+      />
     </div>
   );
 }

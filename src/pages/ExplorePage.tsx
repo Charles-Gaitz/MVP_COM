@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Search, Heart, ChevronLeft, ChevronRight, User, Scale } from 'lucide-react';
+import { Search, Heart, ChevronLeft, ChevronRight, User, Scale, MapPin, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
-import { AuthModal } from '../components/AuthModal';
 import { ComparisonTool } from '../components/ComparisonTool';
+import { AuthModal } from '../components/AuthModal';
+import { LeadCaptureModal } from '../components/LeadCaptureModal';
 
 interface CommunityCard {
   id: string;
@@ -355,7 +356,7 @@ const sampleCommunities: CommunityCard[] = [
 ];
 
 function ExplorePage() {
-  const { user, isAuthenticated } = useUser();
+  const { user, isAuthenticated, logout } = useUser();
   const [searchQuery, setSearchQuery] = useState('');
   const [schoolRating, setSchoolRating] = useState('Any');
   const [priceRange, setPriceRange] = useState('Any');
@@ -372,10 +373,16 @@ function ExplorePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showComparison, setShowComparison] = useState(false);
   const [selectedForComparison, setSelectedForComparison] = useState<CommunityCard[]>([]);
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+  const [leadCaptureType, setLeadCaptureType] = useState<'contact_realtor' | 'schedule_tour' | 'get_pricing' | 'mortgage_calc'>('get_pricing');
+  const [selectedCommunityName, setSelectedCommunityName] = useState('');
   
   // Autocomplete states
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
+  
+  // Filter visibility state
+  const [showFilters, setShowFilters] = useState(false);
   
   const communitiesPerPage = 12;
 
@@ -417,14 +424,6 @@ function ExplorePage() {
     if (selectedForComparison.length > 0) {
       setShowComparison(true);
     }
-  };
-
-  const handleAuthRequired = () => {
-    if (!isAuthenticated) {
-      setShowAuthModal(true);
-      return false;
-    }
-    return true;
   };
 
   // Convert CommunityCard to Community format for comparison
@@ -622,18 +621,44 @@ function ExplorePage() {
 
               {/* User Authentication */}
               {isAuthenticated ? (
-                <div className="flex items-center space-x-3">
-                  <span className="text-sm text-gray-600">Hi, {user?.name}</span>
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4 text-blue-600" />
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-3 bg-blue-50 px-4 py-2 rounded-lg">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium text-gray-900">Welcome back!</span>
+                      <span className="text-xs text-gray-600">{user?.name}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => {
+                        // Show saved communities count or other user stats
+                        alert(`You have ${user?.savedCommunities?.length || 0} saved communities and ${user?.searchHistory?.length || 0} searches in your history.`);
+                      }}
+                      className="text-sm text-blue-600 hover:text-blue-700 px-3 py-1 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors duration-200"
+                    >
+                      My Profile
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm('Are you sure you want to sign out?')) {
+                          logout();
+                        }
+                      }}
+                      className="text-sm text-gray-600 hover:text-gray-700 px-3 py-1 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                    >
+                      Sign Out
+                    </button>
                   </div>
                 </div>
               ) : (
                 <button
                   onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium"
+                  className="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium shadow-sm"
                 >
-                  Sign In
+                  Sign In / Register
                 </button>
               )}
             </div>
@@ -684,141 +709,185 @@ function ExplorePage() {
               )}
             </div>
 
-            {/* Primary Filters */}
-            <div className="flex flex-wrap gap-3">
-              {/* Metro Area Filter */}
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[120px]"
-              >
-                <option value="Any">Metro Area</option>
-                <option value="Austin">Austin Area</option>
-                <option value="Dallas">Dallas Area</option>
-                <option value="Houston">Houston Area</option>
-              </select>
-
-              {/* Price Range Filter */}
-              <select
-                value={priceRange}
-                onChange={(e) => setPriceRange(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[120px]"
-              >
-                <option value="Any">Price Range</option>
-                <option value="$">$ Budget</option>
-                <option value="$$">$$ Mid-Range</option>
-                <option value="$$$">$$$ Premium</option>
-              </select>
-
-              {/* School Rating Filter */}
-              <select
-                value={schoolRating}
-                onChange={(e) => setSchoolRating(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[120px]"
-              >
-                <option value="Any">School Rating</option>
-                <option value="A+">A+ Schools</option>
-                <option value="A">A Schools</option>
-                <option value="B+">B+ Schools</option>
-                <option value="B">B Schools</option>
-              </select>
-
-              {/* Region Filter */}
-              <select
-                value={regionFilter}
-                onChange={(e) => setRegionFilter(e.target.value)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[120px]"
-              >
-                <option value="Any">Region</option>
-                <option value="North Texas">North Texas</option>
-                <option value="Central Texas">Central Texas</option>
-                <option value="East Texas">East Texas</option>
-                <option value="South Texas">South Texas</option>
-                <option value="West Texas">West Texas</option>
-              </select>
-            </div>
+            {/* Filters Toggle Button */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm"
+            >
+              <Filter className="h-5 w-5" />
+              Filters
+              {showFilters ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </button>
           </div>
 
-          {/* Bottom Row - Secondary Filters and Sort */}
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            {/* Secondary Filters */}
-            <div className="flex flex-wrap gap-3">
-              {/* Community Type Filter */}
-              <select
-                value={communityType}
-                onChange={(e) => setCommunityType(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[100px]"
-              >
-                <option value="Any">Community Type</option>
-                <option value="Suburban">Suburban</option>
-                <option value="Urban">Urban</option>
-                <option value="Master-Planned">Master-Planned</option>
-                <option value="Historic">Historic</option>
-              </select>
+          {/* Collapsible Filters Panel */}
+          {showFilters && (
+            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+                {/* Metro Area Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Metro Area</label>
+                  <select
+                    value={selectedCity}
+                    onChange={(e) => setSelectedCity(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Metro Area</option>
+                    <option value="Austin">Austin Area</option>
+                    <option value="Dallas">Dallas Area</option>
+                    <option value="Houston">Houston Area</option>
+                  </select>
+                </div>
 
-              {/* Population Filter */}
-              <select
-                value={populationFilter}
-                onChange={(e) => setPopulationFilter(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[100px]"
-              >
-                <option value="Any">Population Size</option>
-                <option value="Small (Under 50K)">Small (Under 50K)</option>
-                <option value="Medium (50K - 150K)">Medium (50K - 150K)</option>
-                <option value="Large (Over 150K)">Large (Over 150K)</option>
-              </select>
+                {/* Price Range Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Price Range</label>
+                  <select
+                    value={priceRange}
+                    onChange={(e) => setPriceRange(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Price Range</option>
+                    <option value="$">$ Budget</option>
+                    <option value="$$">$$ Mid-Range</option>
+                    <option value="$$$">$$$ Premium</option>
+                  </select>
+                </div>
 
-              {/* Commute Time Filter */}
-              <select
-                value={commuteFilter}
-                onChange={(e) => setCommuteFilter(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white min-w-[100px]"
-              >
-                <option value="Any">Commute Time</option>
-                <option value="Short (Under 25 min)">Short (Under 25 min)</option>
-                <option value="Medium (25-35 min)">Medium (25-35 min)</option>
-                <option value="Long (Over 35 min)">Long (Over 35 min)</option>
-              </select>
+                {/* School Rating Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">School Rating</label>
+                  <select
+                    value={schoolRating}
+                    onChange={(e) => setSchoolRating(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Rating</option>
+                    <option value="A+">A+ Schools</option>
+                    <option value="A">A Schools</option>
+                    <option value="B+">B+ Schools</option>
+                    <option value="B">B Schools</option>
+                  </select>
+                </div>
 
-              {/* Clear Filters Button */}
-              <button
-                onClick={() => {
-                  setSearchQuery('');
-                  setSelectedCity('Any');
-                  setPriceRange('Any');
-                  setSchoolRating('Any');
-                  setCommunityType('Any');
-                  setRegionFilter('Any');
-                  setPopulationFilter('Any');
-                  setCommuteFilter('Any');
-                  setSortBy('name');
-                }}
-                className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
-              >
-                Clear All
-              </button>
+                {/* Region Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Region</label>
+                  <select
+                    value={regionFilter}
+                    onChange={(e) => setRegionFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Region</option>
+                    <option value="North Texas">North Texas</option>
+                    <option value="Central Texas">Central Texas</option>
+                    <option value="East Texas">East Texas</option>
+                    <option value="South Texas">South Texas</option>
+                    <option value="West Texas">West Texas</option>
+                  </select>
+                </div>
+
+                {/* Community Type Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Community Type</label>
+                  <select
+                    value={communityType}
+                    onChange={(e) => setCommunityType(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Type</option>
+                    <option value="Suburban">Suburban</option>
+                    <option value="Urban">Urban</option>
+                    <option value="Master-Planned">Master-Planned</option>
+                    <option value="Historic">Historic</option>
+                  </select>
+                </div>
+
+                {/* Population Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Population Size</label>
+                  <select
+                    value={populationFilter}
+                    onChange={(e) => setPopulationFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Size</option>
+                    <option value="Small (Under 50K)">Small (Under 50K)</option>
+                    <option value="Medium (50K - 150K)">Medium (50K - 150K)</option>
+                    <option value="Large (Over 150K)">Large (Over 150K)</option>
+                  </select>
+                </div>
+
+                {/* Commute Time Filter */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Commute Time</label>
+                  <select
+                    value={commuteFilter}
+                    onChange={(e) => setCommuteFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="Any">Any Commute</option>
+                    <option value="Short (Under 25 min)">Short (Under 25 min)</option>
+                    <option value="Medium (25-35 min)">Medium (25-35 min)</option>
+                    <option value="Long (Over 35 min)">Long (Over 35 min)</option>
+                  </select>
+                </div>
+
+                {/* Sort Options */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                  >
+                    <option value="name">Name</option>
+                    <option value="city">Metro Area</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="school">Best Schools First</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Filter Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <span className="text-sm text-gray-600">
+                  {filteredCommunities.length} communities found
+                </span>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setSelectedCity('Any');
+                      setPriceRange('Any');
+                      setSchoolRating('Any');
+                      setCommunityType('Any');
+                      setRegionFilter('Any');
+                      setPopulationFilter('Any');
+                      setCommuteFilter('Any');
+                      setSortBy('name');
+                    }}
+                    className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
+                  >
+                    Clear All Filters
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
             </div>
-
-            {/* Sort Options and Results Count */}
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                {filteredCommunities.length} communities found
-              </span>
-              
-              {/* Sort Dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
-              >
-                <option value="name">Sort by Name</option>
-                <option value="city">Sort by Metro Area</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="school">Best Schools First</option>
-              </select>
-            </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -919,12 +988,24 @@ function ExplorePage() {
                           </span>
                         </div>
                         
-                        <Link
-                          to={`/community/${community.id}`}
-                          className="w-full inline-flex justify-center items-center px-3 py-1.5 text-xs font-medium text-white bg-blue-900 hover:bg-blue-800 rounded transition-colors duration-200"
-                        >
-                          View Details
-                        </Link>
+                        <div className="flex gap-2">
+                          <Link
+                            to={`/community/${community.id}`}
+                            className="flex-1 inline-flex justify-center items-center px-2 py-1.5 text-xs font-medium text-blue-900 bg-white border border-blue-200 hover:bg-blue-50 rounded transition-colors duration-200"
+                          >
+                            View Details
+                          </Link>
+                          <button
+                            onClick={() => {
+                              setSelectedCommunityName(community.name);
+                              setLeadCaptureType('get_pricing');
+                              setShowLeadCapture(true);
+                            }}
+                            className="flex-1 inline-flex justify-center items-center px-2 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors duration-200"
+                          >
+                            💰 Get Info
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1028,6 +1109,14 @@ function ExplorePage() {
           onClose={() => setShowComparison(false)}
         />
       )}
+
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        communityName={selectedCommunityName}
+        trigger={leadCaptureType}
+      />
     </div>
   );
 }

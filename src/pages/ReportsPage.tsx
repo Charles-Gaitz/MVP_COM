@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MapPin, FileText, Plus, X, Download, BarChart3, TrendingUp, Home, GraduationCap, Shield, DollarSign, Heart } from 'lucide-react';
+import { MapPin, FileText, Plus, X, Download, BarChart3, TrendingUp, Home, GraduationCap, Shield, DollarSign, Heart, Users, TreePine, Briefcase, Cloud } from 'lucide-react';
+import { MarketTrends } from '../components/MarketTrends';
+import { SchoolDistrictDetails } from '../components/SchoolDistrictDetails';
+import { TrafficPatterns } from '../components/TrafficPatterns';
+import { NearbyAmenities } from '../components/NearbyAmenities';
+import { EmploymentData } from '../components/EmploymentData';
+import { ClimateWeather } from '../components/ClimateWeather';
 
 // Import community data (you might want to move this to a shared file)
 const sampleCommunities = [
@@ -15,7 +21,37 @@ const sampleCommunities = [
     crimeRate: 0.8,
     avgCommute: 28,
     walkScore: 25,
-    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    // Additional detailed data
+    demographics: {
+      medianAge: 42,
+      medianHouseholdIncome: 125000,
+      collegeEducated: 85,
+      marriedCouples: 72
+    },
+    housing: {
+      homeOwnership: 88,
+      avgHomeSize: 2800,
+      propertyTax: 2.1,
+      avgRent: 2200
+    },
+    amenities: {
+      parks: 12,
+      restaurants: 25,
+      shopping: 8,
+      healthcare: 5,
+      entertainment: 6
+    },
+    employment: {
+      unemploymentRate: 2.1,
+      majorEmployers: ['Dell Technologies', 'IBM', 'Apple'],
+      averageWage: 75000
+    },
+    climate: {
+      avgTemp: 78,
+      rainyDays: 85,
+      sunnyDays: 230
+    }
   },
   {
     id: 'plano',
@@ -28,7 +64,36 @@ const sampleCommunities = [
     crimeRate: 1.2,
     avgCommute: 26,
     walkScore: 42,
-    image: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    demographics: {
+      medianAge: 39,
+      medianHouseholdIncome: 95000,
+      collegeEducated: 78,
+      marriedCouples: 68
+    },
+    housing: {
+      homeOwnership: 82,
+      avgHomeSize: 2400,
+      propertyTax: 2.3,
+      avgRent: 1800
+    },
+    amenities: {
+      parks: 35,
+      restaurants: 180,
+      shopping: 25,
+      healthcare: 15,
+      entertainment: 20
+    },
+    employment: {
+      unemploymentRate: 2.8,
+      majorEmployers: ['Toyota', 'Frito Lay', 'JCPenney'],
+      averageWage: 68000
+    },
+    climate: {
+      avgTemp: 76,
+      rainyDays: 82,
+      sunnyDays: 225
+    }
   },
   {
     id: 'katy',
@@ -41,7 +106,36 @@ const sampleCommunities = [
     crimeRate: 1.1,
     avgCommute: 32,
     walkScore: 28,
-    image: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    demographics: {
+      medianAge: 36,
+      medianHouseholdIncome: 88000,
+      collegeEducated: 72,
+      marriedCouples: 75
+    },
+    housing: {
+      homeOwnership: 85,
+      avgHomeSize: 2600,
+      propertyTax: 2.8,
+      avgRent: 1650
+    },
+    amenities: {
+      parks: 18,
+      restaurants: 85,
+      shopping: 12,
+      healthcare: 8,
+      entertainment: 10
+    },
+    employment: {
+      unemploymentRate: 3.2,
+      majorEmployers: ['Energy Corridor', 'Memorial Hermann', 'BP America'],
+      averageWage: 72000
+    },
+    climate: {
+      avgTemp: 80,
+      rainyDays: 105,
+      sunnyDays: 210
+    }
   },
   {
     id: 'frisco',
@@ -54,7 +148,36 @@ const sampleCommunities = [
     crimeRate: 0.9,
     avgCommute: 24,
     walkScore: 35,
-    image: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    demographics: {
+      medianAge: 35,
+      medianHouseholdIncome: 110000,
+      collegeEducated: 82,
+      marriedCouples: 70
+    },
+    housing: {
+      homeOwnership: 80,
+      avgHomeSize: 2900,
+      propertyTax: 2.2,
+      avgRent: 2100
+    },
+    amenities: {
+      parks: 28,
+      restaurants: 120,
+      shopping: 18,
+      healthcare: 12,
+      entertainment: 15
+    },
+    employment: {
+      unemploymentRate: 2.3,
+      majorEmployers: ['T-Mobile', 'FC Dallas', 'Comerica Bank'],
+      averageWage: 78000
+    },
+    climate: {
+      avgTemp: 75,
+      rainyDays: 80,
+      sunnyDays: 235
+    }
   },
   {
     id: 'sugar-land',
@@ -67,7 +190,36 @@ const sampleCommunities = [
     crimeRate: 1.0,
     avgCommute: 29,
     walkScore: 38,
-    image: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    demographics: {
+      medianAge: 38,
+      medianHouseholdIncome: 105000,
+      collegeEducated: 80,
+      marriedCouples: 73
+    },
+    housing: {
+      homeOwnership: 84,
+      avgHomeSize: 2700,
+      propertyTax: 2.6,
+      avgRent: 1900
+    },
+    amenities: {
+      parks: 22,
+      restaurants: 95,
+      shopping: 15,
+      healthcare: 10,
+      entertainment: 12
+    },
+    employment: {
+      unemploymentRate: 2.5,
+      majorEmployers: ['Schlumberger', 'Fluor', 'Imperial Sugar'],
+      averageWage: 74000
+    },
+    climate: {
+      avgTemp: 79,
+      rainyDays: 98,
+      sunnyDays: 215
+    }
   },
   {
     id: 'round-rock',
@@ -80,7 +232,36 @@ const sampleCommunities = [
     crimeRate: 1.3,
     avgCommute: 25,
     walkScore: 31,
-    image: 'https://images.pexels.com/photos/2089698/pexels-photo-2089698.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
+    image: 'https://images.pexels.com/photos/2089698/pexels-photo-2089698.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
+    demographics: {
+      medianAge: 34,
+      medianHouseholdIncome: 82000,
+      collegeEducated: 68,
+      marriedCouples: 65
+    },
+    housing: {
+      homeOwnership: 78,
+      avgHomeSize: 2300,
+      propertyTax: 2.4,
+      avgRent: 1700
+    },
+    amenities: {
+      parks: 25,
+      restaurants: 110,
+      shopping: 20,
+      healthcare: 8,
+      entertainment: 14
+    },
+    employment: {
+      unemploymentRate: 3.1,
+      majorEmployers: ['Dell', 'IKEA', 'Seton Healthcare'],
+      averageWage: 65000
+    },
+    climate: {
+      avgTemp: 77,
+      rainyDays: 88,
+      sunnyDays: 220
+    }
   }
 ];
 
@@ -96,6 +277,35 @@ interface Community {
   avgCommute: number;
   walkScore: number;
   image: string;
+  demographics: {
+    medianAge: number;
+    medianHouseholdIncome: number;
+    collegeEducated: number;
+    marriedCouples: number;
+  };
+  housing: {
+    homeOwnership: number;
+    avgHomeSize: number;
+    propertyTax: number;
+    avgRent: number;
+  };
+  amenities: {
+    parks: number;
+    restaurants: number;
+    shopping: number;
+    healthcare: number;
+    entertainment: number;
+  };
+  employment: {
+    unemploymentRate: number;
+    majorEmployers: string[];
+    averageWage: number;
+  };
+  climate: {
+    avgTemp: number;
+    rainyDays: number;
+    sunnyDays: number;
+  };
 }
 
 function ReportsPage() {
@@ -494,6 +704,344 @@ function ReportsPage() {
                     </table>
                   </div>
                 </div>
+
+                {/* Demographics Section */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Users className="h-5 w-5 mr-2" />
+                      Demographics & Lifestyle
+                    </h3>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Metric
+                          </th>
+                          {selectedCommunitiesData.map((community) => (
+                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {community.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Age</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.demographics.medianAge} years
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Household Income</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                              ${community.demographics.medianHouseholdIncome.toLocaleString()}
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">College Educated (%)</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.demographics.collegeEducated}%
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Married Couples (%)</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.demographics.marriedCouples}%
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Housing Market Section */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Home className="h-5 w-5 mr-2" />
+                      Housing Market Analysis
+                    </h3>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Metric
+                          </th>
+                          {selectedCommunitiesData.map((community) => (
+                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {community.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Home Ownership Rate</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.housing.homeOwnership}%
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Home Size</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.housing.avgHomeSize.toLocaleString()} sq ft
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Property Tax Rate</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.housing.propertyTax}%
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Rent</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
+                              ${community.housing.avgRent.toLocaleString()}/month
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Amenities & Lifestyle Section */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <TreePine className="h-5 w-5 mr-2" />
+                      Amenities & Recreation
+                    </h3>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Amenity Type
+                          </th>
+                          {selectedCommunitiesData.map((community) => (
+                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {community.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Parks & Recreation</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.amenities.parks} facilities
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Restaurants & Dining</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.amenities.restaurants} establishments
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Shopping Centers</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.amenities.shopping} centers
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Healthcare Facilities</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.amenities.healthcare} facilities
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Entertainment Venues</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.amenities.entertainment} venues
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Employment & Economy Section */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Briefcase className="h-5 w-5 mr-2" />
+                      Employment & Economy
+                    </h3>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Economic Indicator
+                          </th>
+                          {selectedCommunitiesData.map((community) => (
+                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {community.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Unemployment Rate</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                              {community.employment.unemploymentRate}%
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Wage</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
+                              ${community.employment.averageWage.toLocaleString()}/year
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">Major Employers</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 text-sm text-gray-700">
+                              <div className="space-y-1">
+                                {community.employment.majorEmployers.map((employer, index) => (
+                                  <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                    {employer}
+                                  </div>
+                                ))}
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Climate & Weather Section */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                  <div className="px-6 py-4 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                      <Cloud className="h-5 w-5 mr-2" />
+                      Climate & Weather
+                    </h3>
+                  </div>
+                  
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Weather Metric
+                          </th>
+                          {selectedCommunitiesData.map((community) => (
+                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {community.name}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Temperature</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.climate.avgTemp}°F
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sunny Days per Year</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-yellow-600">
+                              {community.climate.sunnyDays} days
+                            </td>
+                          ))}
+                        </tr>
+                        <tr>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rainy Days per Year</td>
+                          {selectedCommunitiesData.map((community) => (
+                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                              {community.climate.rainyDays} days
+                            </td>
+                          ))}
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Interactive Components from Community Detail Page */}
+                {selectedCommunitiesData.length === 1 && (
+                  <div className="space-y-6">
+                    <MarketTrends 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                    
+                    <SchoolDistrictDetails 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                    
+                    <TrafficPatterns 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                    
+                    <NearbyAmenities 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                    
+                    <EmploymentData 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                    
+                    <ClimateWeather 
+                      communityId={selectedCommunitiesData[0].id}
+                      communityName={selectedCommunitiesData[0].name}
+                    />
+                  </div>
+                )}
 
                 {/* Summary Insights */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
