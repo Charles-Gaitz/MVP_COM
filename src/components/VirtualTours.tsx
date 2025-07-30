@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, MapPin, Clock, User, Eye, X } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, RotateCcw, MapPin, Clock, User, Eye, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface VirtualTour {
   id: string;
@@ -22,10 +22,15 @@ interface VirtualToursProps {
 }
 
 export function VirtualTours({ communityId, communityName }: VirtualToursProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedTour, setSelectedTour] = useState<VirtualTour | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   // Sample virtual tour data - in a real app, this would come from an API
   const getTourData = (id: string): VirtualTour[] => {
@@ -181,25 +186,38 @@ export function VirtualTours({ communityId, communityName }: VirtualToursProps) 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Play className="h-6 w-6 text-blue-900 mr-2" />
-              Virtual Tours & Street Views
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Explore {communityName} from the comfort of your home
-            </p>
-          </div>
-          <div className="text-right">
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Play className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Virtual Tours & Street Views
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Explore {communityName} from the comfort of your home
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
+          <div className="text-right mr-6">
             <div className="text-2xl font-bold text-blue-900">{tours.length}</div>
             <p className="text-xs text-gray-500">Tours Available</p>
           </div>
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {/* Category Filters */}
         <div className="flex flex-wrap gap-2 mb-6">
           {categories.map((category) => (
@@ -295,7 +313,8 @@ export function VirtualTours({ communityId, communityName }: VirtualToursProps) 
             <p>No virtual tours available in this category.</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Tour Modal */}
       {selectedTour && (

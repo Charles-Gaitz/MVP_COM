@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Cloud, Sun, Thermometer, Droplets, Wind, AlertTriangle, Umbrella, Eye } from 'lucide-react';
+import { Cloud, Sun, Thermometer, Droplets, Wind, AlertTriangle, Umbrella, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ClimateWeatherProps {
   communityId: string;
@@ -7,6 +8,11 @@ interface ClimateWeatherProps {
 }
 
 export function ClimateWeather({ communityId, communityName }: ClimateWeatherProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
   // Sample climate data - in a real app, this would come from NOAA/Weather APIs
   const getClimateData = (id: string) => {
     const climateData = {
@@ -142,27 +148,40 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Cloud className="h-6 w-6 text-blue-900 mr-2" />
-              Climate & Weather Data
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Weather patterns and climate information for {communityName}
-            </p>
-          </div>
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Cloud className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Climate & Weather Data
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Weather patterns and climate information for {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
           <Link 
             to={`/reports?community=${communityId}&section=weather`}
-            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
+            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6"
           >
             View Weather Forecast
           </Link>
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {/* Climate Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-orange-50 to-red-50 rounded-lg p-4">
@@ -365,7 +384,8 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
             View Detailed Climate Report & Emergency Preparedness
           </Link>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

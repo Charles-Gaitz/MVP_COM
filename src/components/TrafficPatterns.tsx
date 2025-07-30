@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Car, Clock, MapPin, TrendingUp, Navigation, AlertTriangle } from 'lucide-react';
+import { Car, Clock, MapPin, TrendingUp, Navigation, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TrafficPatternsProps {
   communityId: string;
@@ -7,6 +8,11 @@ interface TrafficPatternsProps {
 }
 
 export function TrafficPatterns({ communityId, communityName }: TrafficPatternsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
   // Sample traffic data - in a real app, this would come from real-time APIs
   const getTrafficData = (id: string) => {
     const trafficData = {
@@ -91,26 +97,51 @@ export function TrafficPatterns({ communityId, communityName }: TrafficPatternsP
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Car className="h-6 w-6 text-blue-900 mr-2" />
-              Traffic Patterns & Commute Data
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Real-time traffic analysis for {communityName}
-            </p>
-          </div>
-          <div className="text-right">
-            <div className="text-2xl font-bold text-blue-900">{trafficInfo.averageCommute} min</div>
-            <p className="text-xs text-gray-500">Average Commute</p>
-          </div>
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Car className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Traffic Patterns & Commute Data
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Real-time traffic analysis for {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
+          <Link 
+            to={`/reports?community=${communityId}&section=traffic`} 
+            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6"
+          >
+            View Full Report
+          </Link>
         </div>
       </div>
 
-      <div className="p-6">
-        {/* Peak Traffic Times */}
+      {isExpanded && (
+        <div className="p-6">
+          {/* Average Commute Summary */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-4 mb-6">
+            <div className="flex items-center justify-center">
+              <div className="text-center">
+                <div className="text-3xl font-bold text-blue-900">{trafficInfo.averageCommute} min</div>
+                <p className="text-sm text-gray-600">Average Commute Time</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Peak Traffic Times */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Peak Traffic Times</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -257,7 +288,8 @@ export function TrafficPatterns({ communityId, communityName }: TrafficPatternsP
             View Live Traffic Map & Detailed Routes
           </Link>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

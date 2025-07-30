@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Camera, X, ChevronLeft, ChevronRight, MapPin, Calendar, User, Heart, Share2, Download } from 'lucide-react';
+import { Camera, X, ChevronLeft, ChevronRight, MapPin, Calendar, User, Heart, Share2, Download, ChevronDown, ChevronUp } from 'lucide-react';
+import { LazyImage } from './LazyImage';
 
 interface Photo {
   id: string;
@@ -20,9 +21,14 @@ interface PhotoGalleriesProps {
 }
 
 export function PhotoGalleries({ communityId, communityName }: PhotoGalleriesProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   // Sample photo data - in a real app, this would come from an API
   const getPhotoData = (id: string): Photo[] => {
@@ -214,25 +220,38 @@ export function PhotoGalleries({ communityId, communityName }: PhotoGalleriesPro
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Camera className="h-6 w-6 text-blue-900 mr-2" />
-              Photo Gallery
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              High-quality photos showcasing {communityName}
-            </p>
-          </div>
-          <div className="text-right">
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Camera className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Photo Gallery
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  High-quality photos showcasing {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
+          <div className="text-right mr-6">
             <div className="text-2xl font-bold text-blue-900">{photos.length}</div>
             <p className="text-xs text-gray-500">Photos</p>
           </div>
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {/* Category Filters */}
         <div className="flex flex-wrap gap-2 mb-6">
           {categories.map((category) => (
@@ -258,10 +277,13 @@ export function PhotoGalleries({ communityId, communityName }: PhotoGalleriesPro
               className="group relative cursor-pointer overflow-hidden rounded-lg bg-gray-200 aspect-[4/3]"
               onClick={() => openLightbox(photo)}
             >
-              <img
+              <LazyImage
                 src={photo.url}
                 alt={photo.title}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                placeholder="Loading photo..."
+                width={400}
+                height={300}
               />
               
               {/* Overlay */}
@@ -311,7 +333,8 @@ export function PhotoGalleries({ communityId, communityName }: PhotoGalleriesPro
             <p>No photos available in this category.</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Lightbox Modal */}
       {selectedPhoto && (
@@ -347,10 +370,11 @@ export function PhotoGalleries({ communityId, communityName }: PhotoGalleriesPro
 
             {/* Image */}
             <div className="flex flex-col max-h-full">
-              <img
+              <LazyImage
                 src={selectedPhoto.url}
                 alt={selectedPhoto.title}
                 className="max-w-full max-h-[80vh] object-contain"
+                placeholder="Loading full image..."
               />
               
               {/* Photo Info */}

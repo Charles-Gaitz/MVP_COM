@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { GraduationCap, MapPin, Users, Star, Award, BookOpen, Calendar } from 'lucide-react';
+import { GraduationCap, MapPin, Users, Star, Award, BookOpen, Calendar, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface SchoolDistrictDetailsProps {
   communityId: string;
@@ -7,6 +8,8 @@ interface SchoolDistrictDetailsProps {
 }
 
 export function SchoolDistrictDetails({ communityId, communityName }: SchoolDistrictDetailsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   // Sample school data - in a real app, this would come from an API
   const getSchoolData = (id: string) => {
     const schoolData = {
@@ -146,18 +149,28 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <GraduationCap className="h-6 w-6 text-blue-900 mr-2" />
-              School District Details
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              {schoolInfo.district} serving {communityName}
-            </p>
-          </div>
-          <div className="text-right">
+      <div className="border-b border-gray-200">
+        <div className="flex items-center justify-between p-6">
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="flex-1 flex items-center justify-between text-left hover:bg-gray-50 -m-2 p-2 rounded-lg transition-colors"
+          >
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 flex items-center">
+                <GraduationCap className="h-6 w-6 text-blue-900 mr-2" />
+                School District Details
+              </h2>
+              <p className="text-gray-600 text-sm mt-1">
+                {schoolInfo.district} serving {communityName}
+              </p>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
+          <div className="text-right ml-4">
             <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${getRatingColor(schoolInfo.districtRating)}`}>
               <Star className="h-4 w-4 mr-1" />
               {schoolInfo.districtRating}
@@ -167,8 +180,8 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
         </div>
       </div>
 
-      <div className="p-6">
-        {/* Schools List */}
+      {isExpanded && (
+        <div className="p-6">{/* Schools List */}
         <div className="space-y-6">
           {schoolInfo.schools.map((school, index) => (
             <div key={index} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow duration-200">
@@ -298,7 +311,8 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
             View School Boundaries & Enrollment Information
           </Link>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -30,9 +30,14 @@ interface CommunityEventsProps {
 }
 
 export function CommunityEvents({ communityId, communityName }: CommunityEventsProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [timeFilter, setTimeFilter] = useState<string>('upcoming');
   const [showFilters, setShowFilters] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   // Sample events data - in a real app, this would come from an API
   const getEventsData = (id: string): CommunityEvent[] => {
@@ -275,20 +280,32 @@ export function CommunityEvents({ communityId, communityName }: CommunityEventsP
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Calendar className="h-6 w-6 text-blue-900 mr-2" />
-              Community Events & Activities
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Discover local events and activities in {communityName}
-            </p>
-          </div>
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Calendar className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Community Events & Activities
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Discover local events and activities in {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+            className="flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors duration-200 mr-6"
           >
             <Filter className="h-4 w-4 mr-2" />
             Filters
@@ -297,7 +314,8 @@ export function CommunityEvents({ communityId, communityName }: CommunityEventsP
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {/* Filters */}
         {showFilters && (
           <div className="mb-6 p-4 bg-gray-50 rounded-lg">
@@ -521,7 +539,8 @@ export function CommunityEvents({ communityId, communityName }: CommunityEventsP
             <p className="text-sm">Try adjusting your filters or check back later.</p>
           </div>
         )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

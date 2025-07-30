@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, Heart, Coffee, Utensils, MapPin, Star, Clock, Car } from 'lucide-react';
+import { ShoppingCart, Heart, Coffee, Utensils, MapPin, Star, Clock, Car, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface NearbyAmenitiesProps {
   communityId: string;
@@ -7,6 +8,12 @@ interface NearbyAmenitiesProps {
 }
 
 export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
+
   // Sample amenities data - in a real app, this would come from Google Places API or similar
   const getAmenitiesData = (id: string) => {
     const amenitiesData = {
@@ -128,27 +135,40 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <MapPin className="h-6 w-6 text-blue-900 mr-2" />
-              Nearby Amenities & Services
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Essential services and entertainment within easy reach of {communityName}
-            </p>
-          </div>
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <MapPin className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Nearby Amenities & Services
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Essential services and entertainment within easy reach of {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
           <Link 
             to={`/reports?community=${communityId}&section=amenities`}
-            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
+            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6"
           >
             View All on Map
           </Link>
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {categories.map((category) => (
           <div key={category.key} className="mb-8 last:mb-0">
             <div className="flex items-center mb-4">
@@ -232,7 +252,8 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
             </div>
           </div>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

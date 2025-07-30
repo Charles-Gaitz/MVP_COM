@@ -712,10 +712,12 @@ function ExplorePage() {
             {/* Filters Toggle Button */}
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm"
+              className="flex items-center gap-2 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm touch-manipulation"
+              aria-expanded={showFilters}
+              aria-controls="filters-panel"
             >
               <Filter className="h-5 w-5" />
-              Filters
+              <span className="hidden sm:inline">Filters</span>
               {showFilters ? (
                 <ChevronUp className="h-4 w-4" />
               ) : (
@@ -726,15 +728,18 @@ function ExplorePage() {
 
           {/* Collapsible Filters Panel */}
           {showFilters && (
-            <div className="bg-gray-50 rounded-lg p-6 border border-gray-200 mb-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+            <div 
+              id="filters-panel"
+              className="bg-gray-50 rounded-lg p-4 sm:p-6 border border-gray-200 mb-4 animate-fade-in"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
                 {/* Metro Area Filter */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Metro Area</label>
                   <select
                     value={selectedCity}
                     onChange={(e) => setSelectedCity(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                    className="w-full px-3 py-2.5 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white touch-manipulation"
                   >
                     <option value="Any">Any Metro Area</option>
                     <option value="Austin">Austin Area</option>

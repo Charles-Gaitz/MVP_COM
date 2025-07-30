@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, MapPin, ChevronDown, ChevronUp, Home, GraduationCap, Users, Clock, Heart } from 'lucide-react';
+import { ArrowLeft, MapPin, Home, GraduationCap, Users, Clock, Heart } from 'lucide-react';
 import { CommunityReviews } from '../components/CommunityReviews';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
 import { SimilarCommunities } from '../components/SimilarCommunities';
@@ -13,17 +13,13 @@ import { ClimateWeather } from '../components/ClimateWeather';
 import { PhotoGalleries } from '../components/PhotoGalleries';
 import { VirtualTours } from '../components/VirtualTours';
 import { CommunityEvents } from '../components/CommunityEvents';
+import { updatePageSEO, generateCommunityStructuredData } from '../utils/seo';
 
 function CommunityDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadCaptureType, setLeadCaptureType] = useState<'contact_realtor' | 'schedule_tour' | 'get_pricing' | 'mortgage_calc'>('contact_realtor');
-
-  const toggleSection = (section: string) => {
-    setExpandedSection(expandedSection === section ? null : section);
-  };
 
   // Load favorites from localStorage on component mount
   useEffect(() => {
@@ -32,6 +28,36 @@ function CommunityDetailPage() {
       setFavorites(JSON.parse(savedFavorites));
     }
   }, []);
+
+  // Update SEO when component mounts or ID changes
+  useEffect(() => {
+    if (id) {
+      const communityName = communityData.name;
+      const cityName = communityData.city;
+      
+      // Update page SEO
+      updatePageSEO({
+        title: `${communityName}, ${cityName} Texas - Community Guide & Real Estate | TexasCommunities`,
+        description: `Discover ${communityName} in ${cityName}, Texas. View schools, housing market trends, amenities, and community insights. Find homes and connect with local experts.`,
+        keywords: `${communityName} Texas, ${cityName} real estate, ${communityName} homes, ${cityName} schools, Texas communities, ${communityName} housing market`,
+        url: `https://texascommunities.com/community/${id}`,
+        image: communityData.heroImage,
+        type: 'website'
+      });
+
+      // Add structured data
+      generateCommunityStructuredData({
+        name: communityName,
+        city: cityName,
+        state: 'Texas',
+        description: `${communityName} is a vibrant community in ${cityName}, Texas, offering excellent schools, diverse housing options, and rich amenities.`,
+        medianPrice: 485000, // This would come from real data
+        schoolRating: 'A+',
+        population: 42850,
+        amenities: ['Schools', 'Parks', 'Shopping', 'Healthcare', 'Recreation']
+      });
+    }
+  }, [id]); // Simplified dependency array
 
   const toggleFavorite = (communityId: string) => {
     const newFavorites = favorites.includes(communityId)
@@ -54,6 +80,36 @@ function CommunityDetailPage() {
       ? 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
       : 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
   };
+
+  // Update SEO when component mounts or ID changes
+  useEffect(() => {
+    if (id) {
+      const communityName = communityData.name;
+      const cityName = communityData.city;
+      
+      // Update page SEO
+      updatePageSEO({
+        title: `${communityName}, ${cityName} Texas - Community Guide & Real Estate | TexasCommunities`,
+        description: `Discover ${communityName} in ${cityName}, Texas. View schools, housing market trends, amenities, and community insights. Find homes and connect with local experts.`,
+        keywords: `${communityName} Texas, ${cityName} real estate, ${communityName} homes, ${cityName} schools, Texas communities, ${communityName} housing market`,
+        url: `https://texascommunities.com/community/${id}`,
+        image: communityData.heroImage,
+        type: 'website'
+      });
+
+      // Add structured data
+      generateCommunityStructuredData({
+        name: communityName,
+        city: cityName,
+        state: 'Texas',
+        description: `${communityName} is a vibrant community in ${cityName}, Texas, offering excellent schools, diverse housing options, and rich amenities.`,
+        medianPrice: 485000, // This would come from real data
+        schoolRating: 'A+',
+        population: 42850,
+        amenities: ['Schools', 'Parks', 'Shopping', 'Healthcare', 'Recreation']
+      });
+    }
+  }, [id, communityData.name, communityData.city, communityData.heroImage]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -91,6 +147,8 @@ function CommunityDetailPage() {
           style={{
             backgroundImage: `url('${communityData.heroImage}')`
           }}
+          role="img"
+          aria-label={`Scenic view of ${communityData.name} community in ${communityData.city}, Texas`}
         ></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
           {/* Back Button */}
@@ -229,101 +287,7 @@ function CommunityDetailPage() {
           </div>
         </div>
 
-        {/* Collapsible Info Sections */}
-        <div className="space-y-4 mb-8">
-          {/* Schools Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <button
-              onClick={() => toggleSection('schools')}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors duration-200"
-            >
-              <h3 className="text-xl font-semibold text-gray-900">Schools</h3>
-              {expandedSection === 'schools' ? (
-                <ChevronUp className="h-5 w-5 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              )}
-            </button>
-            {expandedSection === 'schools' && (
-              <div className="px-6 pb-6 border-t border-gray-100">
-                <div className="space-y-4 mt-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Westlake Elementary School</h4>
-                      <p className="text-gray-600">Grades K-5</p>
-                    </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">A+</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <h4 className="font-semibold text-gray-900">Westlake High School</h4>
-                      <p className="text-gray-600">Grades 9-12</p>
-                    </div>
-                    <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">A</span>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
 
-          {/* Housing Market Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <button
-              onClick={() => toggleSection('housing')}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors duration-200"
-            >
-              <h3 className="text-xl font-semibold text-gray-900">Housing Market</h3>
-              {expandedSection === 'housing' ? (
-                <ChevronUp className="h-5 w-5 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              )}
-            </button>
-            {expandedSection === 'housing' && (
-              <div className="px-6 pb-6 border-t border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Price Range</h4>
-                    <p className="text-gray-600">$350,000 - $750,000</p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Market Trend</h4>
-                    <p className="text-green-600 font-medium">↗ +5.2% YoY</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Demographics Section */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <button
-              onClick={() => toggleSection('demographics')}
-              className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors duration-200"
-            >
-              <h3 className="text-xl font-semibold text-gray-900">Demographics</h3>
-              {expandedSection === 'demographics' ? (
-                <ChevronUp className="h-5 w-5 text-gray-500" />
-              ) : (
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              )}
-            </button>
-            {expandedSection === 'demographics' && (
-              <div className="px-6 pb-6 border-t border-gray-100">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Population</h4>
-                    <p className="text-gray-600">42,850 residents</p>
-                  </div>
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Median Age</h4>
-                    <p className="text-gray-600">38.5 years</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
 
         {/* Enhanced Community Data & Insights */}
         

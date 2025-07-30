@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Phone, Mail, Calendar, DollarSign, MapPin } from 'lucide-react';
+import { X, Phone, Mail, Calendar, DollarSign, MapPin, Shield, Lock, CheckCircle } from 'lucide-react';
 
 interface LeadCaptureModalProps {
   isOpen: boolean;
@@ -9,6 +9,7 @@ interface LeadCaptureModalProps {
 }
 
 export function LeadCaptureModal({ isOpen, onClose, communityName, trigger }: LeadCaptureModalProps) {
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -48,22 +49,14 @@ export function LeadCaptureModal({ isOpen, onClose, communityName, trigger }: Le
 
     console.log('🎯 HIGH-QUALITY LEAD GENERATED:', leadData);
     
-    // Demo alert showing what happens
-    alert(`✅ QUALIFIED LEAD CAPTURED!
+    // Show success state
+    setIsSubmitted(true);
     
-Lead Quality: ${leadData.leadQuality}
-Urgency: ${leadData.urgency}
-Estimated Deal Value: ${leadData.estimatedValue}
-
-🚀 This lead would be sent to local realtor immediately via:
-• SMS alert
-• Email notification  
-• Dashboard update
-• CRM integration
-
-💰 Your commission: $${getLeadCommission(leadData.leadQuality)}`);
-    
-    onClose();
+    // Auto-close after 3 seconds
+    setTimeout(() => {
+      setIsSubmitted(false);
+      onClose();
+    }, 3000);
   };
 
   const calculateLeadQuality = () => {
@@ -90,33 +83,53 @@ Estimated Deal Value: ${leadData.estimatedValue}
     return `$${budget.toLocaleString()}`;
   };
 
-  const getLeadCommission = (quality: string) => {
-    if (quality.includes('HOT')) return '150';
-    if (quality.includes('WARM')) return '100';
-    return '50';
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{triggerTitles[trigger]}</h2>
-              <p className="text-gray-600 flex items-center">
-                <MapPin className="w-4 h-4 mr-1" />
-                {communityName} • Lead Generation Demo
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-lg max-w-2xl w-full my-8 max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 sm:p-6 rounded-t-lg">
+          <div className="flex justify-between items-start">
+            <div className="flex-1 pr-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">{triggerTitles[trigger]}</h2>
+              <p className="text-gray-600 flex items-center text-sm mt-1">
+                <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
+                <span className="truncate">{communityName} • Lead Generation Demo</span>
               </p>
             </div>
-            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-              <X className="w-6 h-6" />
+            <button 
+              onClick={onClose} 
+              className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Contact Information */}
+        <div className="p-4 sm:p-6">
+          {/* Success State */}
+          {isSubmitted ? (
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div className="text-2xl">✅</div>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Request Submitted Successfully!</h3>
+              <div className="text-gray-600 space-y-2">
+                <p>Thank you for your interest in {communityName}.</p>
+                <p className="font-medium text-blue-600">A local expert will contact you within 2 hours.</p>
+                <div className="bg-blue-50 rounded-lg p-3 mt-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>What happens next:</strong><br/>
+                    • Personalized community report sent to your email<br/>
+                    • Call from a local broker within 2 hours<br/>
+                    • Customized property search based on your needs
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">{/* Contact Information */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
@@ -250,6 +263,50 @@ Estimated Deal Value: ${leadData.estimatedValue}
               />
             </div>
 
+            {/* Privacy & Trust Signals */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start space-x-3">
+                <Shield className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div>
+                  <h4 className="font-semibold text-blue-900 mb-2">🔒 Your Privacy is Our Priority</h4>
+                  <div className="space-y-2 text-sm text-blue-800">
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span>Never shared with third parties or sold</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span>Matched with only ONE local expert in your area</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span>No spam calls - quality professionals only</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Lock className="h-4 w-4 text-blue-600" />
+                      <span>SSL encrypted & GDPR compliant</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Trust Badges */}
+            <div className="flex items-center justify-center space-x-6 mb-4 text-xs text-gray-600">
+              <div className="flex items-center space-x-1">
+                <Shield className="h-4 w-4 text-green-600" />
+                <span>BBB A+ Rated</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <Lock className="h-4 w-4 text-blue-600" />
+                <span>256-bit SSL</span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                <span>10,000+ Happy Clients</span>
+              </div>
+            </div>
+
             {/* Demo Info Box */}
             <div className="bg-green-50 p-4 rounded-lg border border-green-200">
               <h4 className="font-semibold text-green-900 mb-2">🎯 BROKER DEMO: Lead Generation Value</h4>
@@ -275,12 +332,13 @@ Estimated Deal Value: ${leadData.estimatedValue}
                 type="submit"
                 className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium"
               >
-                {trigger === 'contact_realtor' ? '🔥 Generate Lead' : 
-                 trigger === 'schedule_tour' ? '📅 Schedule Tour' :
-                 trigger === 'get_pricing' ? '💰 Get Pricing' : '🏦 Contact Specialist'}
+                {trigger === 'contact_realtor' ? '🏠 Get Free Community Report' : 
+                 trigger === 'schedule_tour' ? '📅 Schedule Free Tour' :
+                 trigger === 'get_pricing' ? '💰 Get Real-Time Pricing' : '🏦 Get Free Market Analysis'}
               </button>
             </div>
           </form>
+          )}
         </div>
       </div>
     </div>

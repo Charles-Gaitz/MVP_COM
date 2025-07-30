@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MapPin, FileText, Plus, X, Download, BarChart3, TrendingUp, Home, GraduationCap, Shield, DollarSign, Heart, Users, TreePine, Briefcase, Cloud } from 'lucide-react';
+import { MapPin, FileText, Plus, X, Download, BarChart3, TrendingUp, Home, GraduationCap, Shield, DollarSign, Heart, Users, TreePine, Briefcase, Cloud, ChevronDown, ChevronUp } from 'lucide-react';
 import { MarketTrends } from '../components/MarketTrends';
 import { SchoolDistrictDetails } from '../components/SchoolDistrictDetails';
 import { TrafficPatterns } from '../components/TrafficPatterns';
 import { NearbyAmenities } from '../components/NearbyAmenities';
 import { EmploymentData } from '../components/EmploymentData';
 import { ClimateWeather } from '../components/ClimateWeather';
+import { LeadCaptureModal } from '../components/LeadCaptureModal';
 
 // Import community data (you might want to move this to a shared file)
 const sampleCommunities = [
@@ -314,6 +315,24 @@ function ReportsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  
+  // Accordion state management
+  const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']));
+  
+  // Lead capture state
+  const [showLeadCapture, setShowLeadCapture] = useState(false);
+
+  const toggleSection = (sectionId: string) => {
+    setExpandedSections(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sectionId)) {
+        newSet.delete(sectionId);
+      } else {
+        newSet.add(sectionId);
+      }
+      return newSet;
+    });
+  };
 
   // Check if a community ID was passed in the URL
   useEffect(() => {
@@ -705,307 +724,384 @@ function ReportsPage() {
                   </div>
                 </div>
 
+                {/* Detailed Sections Header */}
+                <div className="bg-blue-50 rounded-lg p-4 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-semibold text-blue-900 mb-1">Detailed Analysis Sections</h3>
+                      <p className="text-sm text-blue-700">
+                        Click on each section below to expand and view detailed comparisons. 
+                        Currently showing {expandedSections.size} of 5 sections expanded.
+                      </p>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => setExpandedSections(new Set(['demographics', 'housing', 'amenities', 'employment', 'climate']))}
+                        className="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Expand All
+                      </button>
+                      <button
+                        onClick={() => setExpandedSections(new Set())}
+                        className="px-3 py-1 text-xs bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors"
+                      >
+                        Collapse All
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Demographics Section */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
+                  <button
+                    onClick={() => toggleSection('demographics')}
+                    className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                       <Users className="h-5 w-5 mr-2" />
                       Demographics & Lifestyle
                     </h3>
-                  </div>
+                    {expandedSections.has('demographics') ? (
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Metric
-                          </th>
-                          {selectedCommunitiesData.map((community) => (
-                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {community.name}
+                  {expandedSections.has('demographics') && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Metric
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Age</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.demographics.medianAge} years
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Household Income</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                              ${community.demographics.medianHouseholdIncome.toLocaleString()}
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">College Educated (%)</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.demographics.collegeEducated}%
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Married Couples (%)</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.demographics.marriedCouples}%
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                            {selectedCommunitiesData.map((community) => (
+                              <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {community.name}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Age</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.demographics.medianAge} years
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Median Household Income</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                ${community.demographics.medianHouseholdIncome.toLocaleString()}
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">College Educated (%)</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.demographics.collegeEducated}%
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Married Couples (%)</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.demographics.marriedCouples}%
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Housing Market Section */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
+                  <button
+                    onClick={() => toggleSection('housing')}
+                    className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                       <Home className="h-5 w-5 mr-2" />
                       Housing Market Analysis
                     </h3>
-                  </div>
+                    {expandedSections.has('housing') ? (
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Metric
-                          </th>
-                          {selectedCommunitiesData.map((community) => (
-                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {community.name}
+                  {expandedSections.has('housing') && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Metric
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Home Ownership Rate</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.housing.homeOwnership}%
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Home Size</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.housing.avgHomeSize.toLocaleString()} sq ft
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Property Tax Rate</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.housing.propertyTax}%
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Rent</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
-                              ${community.housing.avgRent.toLocaleString()}/month
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                            {selectedCommunitiesData.map((community) => (
+                              <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {community.name}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Home Ownership Rate</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.housing.homeOwnership}%
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Home Size</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.housing.avgHomeSize.toLocaleString()} sq ft
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Property Tax Rate</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.housing.propertyTax}%
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Rent</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
+                                ${community.housing.avgRent.toLocaleString()}/month
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Amenities & Lifestyle Section */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
+                  <button
+                    onClick={() => toggleSection('amenities')}
+                    className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                       <TreePine className="h-5 w-5 mr-2" />
                       Amenities & Recreation
                     </h3>
-                  </div>
+                    {expandedSections.has('amenities') ? (
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Amenity Type
-                          </th>
-                          {selectedCommunitiesData.map((community) => (
-                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {community.name}
+                  {expandedSections.has('amenities') && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Amenity Type
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Parks & Recreation</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.amenities.parks} facilities
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Restaurants & Dining</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.amenities.restaurants} establishments
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Shopping Centers</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.amenities.shopping} centers
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Healthcare Facilities</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.amenities.healthcare} facilities
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Entertainment Venues</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.amenities.entertainment} venues
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                            {selectedCommunitiesData.map((community) => (
+                              <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {community.name}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Parks & Recreation</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.amenities.parks} facilities
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Restaurants & Dining</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.amenities.restaurants} establishments
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Shopping Centers</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.amenities.shopping} centers
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Healthcare Facilities</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.amenities.healthcare} facilities
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Entertainment Venues</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.amenities.entertainment} venues
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Employment & Economy Section */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
+                  <button
+                    onClick={() => toggleSection('employment')}
+                    className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                       <Briefcase className="h-5 w-5 mr-2" />
                       Employment & Economy
                     </h3>
-                  </div>
+                    {expandedSections.has('employment') ? (
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Economic Indicator
-                          </th>
-                          {selectedCommunitiesData.map((community) => (
-                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {community.name}
+                  {expandedSections.has('employment') && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Economic Indicator
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Unemployment Rate</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
-                              {community.employment.unemploymentRate}%
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Wage</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
-                              ${community.employment.averageWage.toLocaleString()}/year
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">Major Employers</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 text-sm text-gray-700">
-                              <div className="space-y-1">
-                                {community.employment.majorEmployers.map((employer, index) => (
-                                  <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
-                                    {employer}
-                                  </div>
-                                ))}
-                              </div>
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                            {selectedCommunitiesData.map((community) => (
+                              <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {community.name}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Unemployment Rate</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-green-600">
+                                {community.employment.unemploymentRate}%
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Wage</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-blue-600">
+                                ${community.employment.averageWage.toLocaleString()}/year
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900">Major Employers</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 text-sm text-gray-700">
+                                <div className="space-y-1">
+                                  {community.employment.majorEmployers.map((employer, index) => (
+                                    <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                                      {employer}
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Climate & Weather Section */}
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="px-6 py-4 border-b border-gray-200">
+                  <button
+                    onClick={() => toggleSection('climate')}
+                    className="w-full px-6 py-4 border-b border-gray-200 bg-gray-50 hover:bg-gray-100 transition-colors flex items-center justify-between"
+                  >
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center">
                       <Cloud className="h-5 w-5 mr-2" />
                       Climate & Weather
                     </h3>
-                  </div>
+                    {expandedSections.has('climate') ? (
+                      <ChevronUp className="h-5 w-5 text-gray-600" />
+                    ) : (
+                      <ChevronDown className="h-5 w-5 text-gray-600" />
+                    )}
+                  </button>
                   
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Weather Metric
-                          </th>
-                          {selectedCommunitiesData.map((community) => (
-                            <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {community.name}
+                  {expandedSections.has('climate') && (
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Weather Metric
                             </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Temperature</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.climate.avgTemp}°F
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sunny Days per Year</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-yellow-600">
-                              {community.climate.sunnyDays} days
-                            </td>
-                          ))}
-                        </tr>
-                        <tr>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rainy Days per Year</td>
-                          {selectedCommunitiesData.map((community) => (
-                            <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                              {community.climate.rainyDays} days
-                            </td>
-                          ))}
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                            {selectedCommunitiesData.map((community) => (
+                              <th key={community.id} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {community.name}
+                              </th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Average Temperature</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.climate.avgTemp}°F
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Sunny Days per Year</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm font-semibold text-yellow-600">
+                                {community.climate.sunnyDays} days
+                              </td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Rainy Days per Year</td>
+                            {selectedCommunitiesData.map((community) => (
+                              <td key={community.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                                {community.climate.rainyDays} days
+                              </td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* Interactive Components from Community Detail Page */}
@@ -1068,11 +1164,44 @@ function ReportsPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Lead Capture for Engaged Users */}
+                <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg shadow-lg p-6 text-white">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2">Ready to Take the Next Step?</h3>
+                      <p className="text-blue-100 mb-4">
+                        You've done the research. Now get personalized guidance from a local expert who knows these communities inside and out.
+                      </p>
+                      <div className="flex flex-wrap gap-2 text-sm">
+                        <span className="bg-blue-500 px-2 py-1 rounded">✓ Free consultation</span>
+                        <span className="bg-blue-500 px-2 py-1 rounded">✓ Market insights</span>
+                        <span className="bg-blue-500 px-2 py-1 rounded">✓ Property search</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <button
+                        onClick={() => setShowLeadCapture(true)}
+                        className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors"
+                      >
+                        Get Expert Help
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </div>
       </div>
+      
+      {/* Lead Capture Modal */}
+      <LeadCaptureModal
+        isOpen={showLeadCapture}
+        onClose={() => setShowLeadCapture(false)}
+        communityName={selectedCommunitiesData.length > 0 ? selectedCommunitiesData.map(c => c.name).join(' vs ') : 'Multiple Communities'}
+        trigger="contact_realtor"
+      />
     </div>
   );
 }

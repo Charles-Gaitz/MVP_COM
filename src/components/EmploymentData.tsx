@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, Building, TrendingUp, Users, DollarSign, MapPin, Award } from 'lucide-react';
+import { Briefcase, Building, TrendingUp, Users, DollarSign, MapPin, Award, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface EmploymentDataProps {
   communityId: string;
@@ -7,6 +8,11 @@ interface EmploymentDataProps {
 }
 
 export function EmploymentData({ communityId, communityName }: EmploymentDataProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const toggleSection = () => {
+    setIsExpanded(!isExpanded);
+  };
   // Sample employment data - in a real app, this would come from Bureau of Labor Statistics API
   const getEmploymentData = (id: string) => {
     const employmentData = {
@@ -108,27 +114,40 @@ export function EmploymentData({ communityId, communityName }: EmploymentDataPro
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
-      <div className="p-6 border-b border-gray-200">
+      <div className="border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900 flex items-center">
-              <Briefcase className="h-6 w-6 text-blue-900 mr-2" />
-              Employment Data & Job Market
-            </h2>
-            <p className="text-gray-600 text-sm mt-1">
-              Economic indicators and major employers in {communityName}
-            </p>
-          </div>
+          <button
+            onClick={toggleSection}
+            className="flex items-center justify-between w-full p-6 text-left hover:bg-gray-50 transition-colors duration-200"
+          >
+            <div className="flex items-center flex-1">
+              <Briefcase className="h-6 w-6 text-blue-900 mr-3" />
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Employment Data & Job Market
+                </h2>
+                <p className="text-gray-600 text-sm mt-1">
+                  Economic indicators and major employers in {communityName}
+                </p>
+              </div>
+            </div>
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5 text-gray-600 ml-4" />
+            ) : (
+              <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
+            )}
+          </button>
           <Link 
             to={`/reports?community=${communityId}&section=employment`}
-            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200"
+            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6"
           >
             View Full Report
           </Link>
         </div>
       </div>
 
-      <div className="p-6">
+      {isExpanded && (
+        <div className="p-6">
         {/* Key Economic Indicators */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-4">
@@ -273,7 +292,8 @@ export function EmploymentData({ communityId, communityName }: EmploymentDataPro
             View Current Job Openings & Salary Data
           </Link>
         </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
