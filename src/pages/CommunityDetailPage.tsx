@@ -70,16 +70,69 @@ function CommunityDetailPage() {
 
   const isFavorite = id ? favorites.includes(id) : false;
 
-  // Sample data based on community ID
-  const communityData = {
-    name: id === 'westlake' ? 'Westlake' : id === 'plano' ? 'Plano' : id === 'katy' ? 'Katy' : 'Community',
-    city: id === 'westlake' ? 'Austin' : id === 'plano' ? 'Dallas' : id === 'katy' ? 'Houston' : 'Texas',
-    heroImage: id === 'westlake' 
-      ? 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
-      : id === 'plano'
-      ? 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
-      : 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+  // Community data lookup
+  const communityDataMap: Record<string, { name: string; city: string; heroImage: string }> = {
+    'westlake': {
+      name: 'Westlake',
+      city: 'Austin',
+      heroImage: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'plano': {
+      name: 'Plano',
+      city: 'Dallas',
+      heroImage: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'katy': {
+      name: 'Katy',
+      city: 'Houston',
+      heroImage: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'frisco': {
+      name: 'Frisco',
+      city: 'Dallas',
+      heroImage: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'sugar-land': {
+      name: 'Sugar Land',
+      city: 'Houston',
+      heroImage: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'round-rock': {
+      name: 'Round Rock',
+      city: 'Austin',
+      heroImage: 'https://images.pexels.com/photos/2089698/pexels-photo-2089698.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'allen': {
+      name: 'Allen',
+      city: 'Dallas',
+      heroImage: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'pearland': {
+      name: 'Pearland',
+      city: 'Houston',
+      heroImage: 'https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'cedar-park': {
+      name: 'Cedar Park',
+      city: 'Austin',
+      heroImage: 'https://images.pexels.com/photos/1396115/pexels-photo-1396115.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'mckinney': {
+      name: 'McKinney',
+      city: 'Dallas',
+      heroImage: 'https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    },
+    'the-woodlands': {
+      name: 'The Woodlands',
+      city: 'Houston',
+      heroImage: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop'
+    }
   };
+
+  // Get community data based on ID, with fallback
+  const communityData = id && communityDataMap[id] 
+    ? communityDataMap[id]
+    : { name: 'Community', city: 'Texas', heroImage: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=800&h=400&fit=crop' };
 
   // Update SEO when component mounts or ID changes
   useEffect(() => {
@@ -129,7 +182,7 @@ function CommunityDetailPage() {
                 Favorites
               </Link>
               <Link to="/reports" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                Reports
+                Compare
               </Link>
               <Link to="/about" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
                 About
@@ -204,10 +257,10 @@ function CommunityDetailPage() {
             <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            Generate Detailed Report
+            Compare Communities
           </Link>
           <p className="text-sm text-gray-600 mt-2">
-            Create a comprehensive report and compare with other communities
+            Line up your communities for a side by side report
           </p>
         </div>
 

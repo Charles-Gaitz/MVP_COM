@@ -19,7 +19,7 @@ export function Navigation() {
   const navigationLinks = [
     { to: "/explore", label: "Explore" },
     { to: "/favorites", label: "Favorites" },
-    { to: "/reports", label: "Reports" },
+    { to: "/reports", label: "Compare" },
     { to: "/about", label: "About" }
   ];
 

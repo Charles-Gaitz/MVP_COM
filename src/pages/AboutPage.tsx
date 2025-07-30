@@ -20,7 +20,7 @@ function AboutPage() {
                 Favorites
               </Link>
               <Link to="/reports" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                Reports
+                Compare
               </Link>
               <Link to="/about" className="text-blue-900 font-medium">
                 About
@@ -105,7 +105,7 @@ function AboutPage() {
               </div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3">Personalized Experience</h3>
               <p className="text-gray-600 text-sm">
-                Save your favorite communities, generate custom reports, and filter results based on what matters most to your family's unique needs.
+                Save your favorite communities, compare key data points, and filter results based on what matters most to your family's unique needs.
               </p>
             </div>
 
@@ -183,9 +183,9 @@ function AboutPage() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Custom Reports</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Community Comparison</h3>
                   <p className="text-gray-600">
-                    Generate detailed PDF reports comparing multiple communities with all the data and insights you need to make your decision.
+                    Compare multiple communities side by side with all the key data and insights you need to make your decision.
                   </p>
                 </div>
               </div>
@@ -267,7 +267,7 @@ function AboutPage() {
         <div className="text-center bg-gradient-to-r from-blue-900 to-indigo-900 rounded-2xl p-8 text-white">
           <h2 className="text-2xl font-bold mb-4">Ready to Find Your Perfect Texas Community?</h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            Start exploring our comprehensive database of Texas communities, compare your favorites, and generate detailed reports to make your next move with confidence.
+            Start exploring our comprehensive database of Texas communities, compare your favorites, and analyze key data to make your next move with confidence.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link

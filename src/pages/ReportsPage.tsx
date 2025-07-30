@@ -421,7 +421,7 @@ function ReportsPage() {
                 Favorites
               </Link>
               <Link to="/reports" className="text-blue-900 font-medium">
-                Reports
+                Compare
               </Link>
               <Link to="/about" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
                 About
@@ -436,9 +436,9 @@ function ReportsPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Community Reports & Comparison</h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Community Comparison</h1>
               <p className="text-gray-600">
-                Generate detailed reports and compare up to 4 Texas communities side by side.
+                Compare up to 4 Texas communities side by side with key data and insights.
               </p>
             </div>
             {selectedCommunitiesData.length > 0 && (
@@ -447,7 +447,7 @@ function ReportsPage() {
                 className="inline-flex items-center px-4 py-2 bg-blue-900 text-white rounded-lg hover:bg-blue-800 transition-colors duration-200"
               >
                 <Download className="h-4 w-4 mr-2" />
-                Download PDF Report
+                Download Comparison
               </button>
             )}
           </div>

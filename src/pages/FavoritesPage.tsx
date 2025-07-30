@@ -255,7 +255,7 @@ function FavoritesPage() {
                 Favorites
               </Link>
               <Link to="/reports" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                Reports
+                Compare
               </Link>
               <Link to="/about" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
                 About
