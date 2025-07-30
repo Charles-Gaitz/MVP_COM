@@ -386,6 +386,9 @@ function ExplorePage() {
   // Filter visibility state
   const [showFilters, setShowFilters] = useState(false);
   
+  // Mobile view state
+  const [showMobileMap, setShowMobileMap] = useState(false);
+  
   // Search type state
   const [searchType, setSearchType] = useState<'communities' | 'neighborhoods'>('communities');
   
@@ -688,10 +691,10 @@ function ExplorePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center space-x-2 text-gray-900 hover:text-blue-900 transition-colors duration-200">
-              <MapPin className="h-8 w-8 text-blue-900" />
-              <span className="text-xl font-bold">TexasCommunities</span>
+              <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-blue-900" />
+              <span className="text-lg sm:text-xl font-bold">TexasCommunities</span>
             </Link>
-            <div className="flex items-center space-x-6">
+            <div className="hidden sm:flex items-center space-x-6">
               <Link to="/explore" className="text-blue-900 font-medium">
                 Explore
               </Link>
@@ -756,6 +759,30 @@ function ExplorePage() {
                   className="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium shadow-sm"
                 >
                   Sign In / Register
+                </button>
+              )}
+            </div>
+            
+            {/* Mobile menu - simplified */}
+            <div className="sm:hidden flex items-center space-x-2">
+              {/* Comparison Button Mobile */}
+              {selectedForComparison.length > 0 && (
+                <button
+                  onClick={startComparison}
+                  className="flex items-center space-x-1 bg-blue-900 text-white px-3 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
+                >
+                  <Scale className="h-4 w-4" />
+                  <span className="text-sm">({selectedForComparison.length})</span>
+                </button>
+              )}
+              
+              {/* Auth Button Mobile */}
+              {!isAuthenticated && (
+                <button
+                  onClick={() => setShowAuthModal(true)}
+                  className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium shadow-sm text-sm"
+                >
+                  Sign In
                 </button>
               )}
             </div>
@@ -1048,12 +1075,38 @@ function ExplorePage() {
         </div>
       </div>
 
-      {/* Main Content - Zillow-style Layout */}
-      <div className="flex h-screen">
-        {/* Left Side - Map */}
-        <div className="w-1/2 relative">
+      {/* Main Content - Responsive Layout */}
+      <div className="lg:flex lg:h-screen">
+        {/* Mobile View Toggle Buttons */}
+        <div className="lg:hidden bg-white border-b border-gray-200 px-4 py-3">
+          <div className="flex space-x-2">
+            <button
+              onClick={() => setShowMobileMap(false)}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                !showMobileMap
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              📋 List View
+            </button>
+            <button
+              onClick={() => setShowMobileMap(true)}
+              className={`flex-1 px-4 py-2 text-sm font-medium rounded-lg transition-colors duration-200 ${
+                showMobileMap
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              🗺️ Map View
+            </button>
+          </div>
+        </div>
+
+        {/* Left Side - Map (Desktop: always visible, Mobile: conditional) */}
+        <div className={`lg:w-1/2 relative ${showMobileMap ? 'block' : 'hidden lg:block'}`}>
           <div 
-            className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-medium"
+            className="w-full h-64 lg:h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-medium"
           >
             <div className="text-center">
               <div className="mb-4">🗺️</div>
@@ -1076,8 +1129,8 @@ function ExplorePage() {
           </div>
         </div>
 
-        {/* Right Side - Community/Neighborhood Cards */}
-        <div className="w-1/2 flex flex-col bg-white">
+        {/* Right Side - Community/Neighborhood Cards (Desktop: always visible, Mobile: conditional) */}
+        <div className={`lg:w-1/2 flex flex-col bg-white ${!showMobileMap ? 'block' : 'hidden lg:flex'}`}>
           {/* Results Header */}
           <div className="p-4 border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between">
@@ -1097,12 +1150,12 @@ function ExplorePage() {
             {searchType === 'communities' ? (
               // Community Cards Display
               filteredCommunities.length > 0 ? (
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="p-2 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {paginatedCommunities.map((community) => (
                     <div key={community.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200">
                       {/* Community Image */}
-                      <div className="w-full h-32 bg-gray-200 overflow-hidden relative">
+                      <div className="w-full h-32 sm:h-32 bg-gray-200 overflow-hidden relative">
                         <img
                           src={community.image}
                           alt={`${community.name} community`}
@@ -1206,12 +1259,12 @@ function ExplorePage() {
             ) : (
               // Neighborhood Cards Display
               filteredNeighborhoods.length > 0 ? (
-                <div className="p-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="p-2 sm:p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {paginatedNeighborhoods.map((neighborhood) => (
                       <div key={neighborhood.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200">
                         {/* Neighborhood Image */}
-                        <div className="w-full h-32 bg-gray-200 overflow-hidden relative">
+                        <div className="w-full h-32 sm:h-32 bg-gray-200 overflow-hidden relative">
                           <img
                             src={neighborhood.image}
                             alt={`${neighborhood.name} neighborhood`}
@@ -1312,8 +1365,8 @@ function ExplorePage() {
           {((searchType === 'communities' && filteredCommunities.length > 0) || 
             (searchType === 'neighborhoods' && filteredNeighborhoods.length > 0)) && totalPages > 1 && (
             <div className="border-t border-gray-200 bg-white px-4 py-3">
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-gray-700">
+              <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+                <div className="text-sm text-gray-700 text-center sm:text-left">
                   {searchType === 'communities' ? (
                     <>Showing {startIndex + 1} to {Math.min(startIndex + communitiesPerPage, filteredCommunities.length)} of {filteredCommunities.length} communities</>
                   ) : (
@@ -1333,9 +1386,9 @@ function ExplorePage() {
                     <ChevronLeft className="h-4 w-4" />
                   </button>
                   
-                  {/* Page Numbers */}
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    const pageNumber = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i;
+                  {/* Page Numbers - Show fewer on mobile */}
+                  {Array.from({ length: Math.min(3, totalPages) }, (_, i) => {
+                    const pageNumber = Math.max(1, Math.min(totalPages - 2, currentPage - 1)) + i;
                     if (pageNumber > totalPages) return null;
                     
                     return (
@@ -1352,6 +1405,28 @@ function ExplorePage() {
                       </button>
                     );
                   })}
+                  
+                  {/* Show more pages on larger screens */}
+                  <div className="hidden sm:flex items-center space-x-2">
+                    {Array.from({ length: Math.min(2, Math.max(0, totalPages - 3)) }, (_, i) => {
+                      const pageNumber = Math.max(1, Math.min(totalPages - 4, currentPage - 2)) + i + 3;
+                      if (pageNumber > totalPages || pageNumber <= 3) return null;
+                      
+                      return (
+                        <button
+                          key={pageNumber}
+                          onClick={() => setCurrentPage(pageNumber)}
+                          className={`px-3 py-2 rounded-lg border text-sm transition-colors duration-200 ${
+                            currentPage === pageNumber
+                              ? 'bg-blue-900 text-white border-blue-900'
+                              : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300'
+                          }`}
+                        >
+                          {pageNumber}
+                        </button>
+                      );
+                    })}
+                  </div>
                   
                   <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
