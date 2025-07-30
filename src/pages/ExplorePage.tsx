@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Search, Heart, ChevronLeft, ChevronRight, User, Scale, MapPin, Filter, ChevronDown, ChevronUp } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
+import { Search, Heart, ChevronLeft, ChevronRight, User, Scale, MapPin, Filter, ChevronDown, ChevronUp, Home } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 import { ComparisonTool } from '../components/ComparisonTool';
 import { AuthModal } from '../components/AuthModal';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
+import { sampleNeighborhoods, type Neighborhood } from '../data/neighborhoods';
 
 interface CommunityCard {
   id: string;
@@ -357,6 +358,7 @@ const sampleCommunities: CommunityCard[] = [
 
 function ExplorePage() {
   const { user, isAuthenticated, logout } = useUser();
+  const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [schoolRating, setSchoolRating] = useState('Any');
   const [priceRange, setPriceRange] = useState('Any');
@@ -384,7 +386,31 @@ function ExplorePage() {
   // Filter visibility state
   const [showFilters, setShowFilters] = useState(false);
   
+  // Search type state
+  const [searchType, setSearchType] = useState<'communities' | 'neighborhoods'>('communities');
+  
+  // Community filter for neighborhoods
+  const [selectedCommunity, setSelectedCommunity] = useState('Any');
+  
   const communitiesPerPage = 12;
+
+  // Initialize from URL parameters
+  React.useEffect(() => {
+    const type = searchParams.get('type');
+    const community = searchParams.get('community');
+    
+    console.log('URL params - type:', type, 'community:', community);
+    
+    if (type === 'neighborhoods') {
+      setSearchType('neighborhoods');
+      console.log('Set search type to neighborhoods');
+    }
+    
+    if (community && community !== 'Any') {
+      setSelectedCommunity(community);
+      console.log('Set selected community to:', community);
+    }
+  }, [searchParams]);
 
   // Load favorites from localStorage on component mount
   React.useEffect(() => {
@@ -393,6 +419,15 @@ function ExplorePage() {
       setFavorites(JSON.parse(savedFavorites));
     }
   }, []);
+
+  // Reset page when search type changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+    // Reset community filter when switching to communities mode
+    if (searchType === 'communities') {
+      setSelectedCommunity('Any');
+    }
+  }, [searchType]);
 
   // Save favorites to localStorage whenever it changes
   React.useEffect(() => {
@@ -451,40 +486,65 @@ function ExplorePage() {
     const suggestions: Array<{type: string, value: string, label: string}> = [];
     const lowerQuery = query.toLowerCase();
     
-    // Community name suggestions
-    sampleCommunities.forEach(community => {
-      if (community.name.toLowerCase().includes(lowerQuery)) {
-        suggestions.push({
-          type: 'community',
-          value: community.name,
-          label: `${community.name} - ${community.city}`
-        });
-      }
-    });
-    
-    // City suggestions
-    const cities = [...new Set(sampleCommunities.map(c => c.city))];
-    cities.forEach(city => {
-      if (city.toLowerCase().includes(lowerQuery)) {
-        suggestions.push({
-          type: 'city',
-          value: city,
-          label: `${city} Area`
-        });
-      }
-    });
-    
-    // Region suggestions
-    const regions = [...new Set(sampleCommunities.map(c => c.region))];
-    regions.forEach(region => {
-      if (region.toLowerCase().includes(lowerQuery)) {
-        suggestions.push({
-          type: 'region',
-          value: region,
-          label: region
-        });
-      }
-    });
+    if (searchType === 'communities') {
+      // Community name suggestions
+      sampleCommunities.forEach(community => {
+        if (community.name.toLowerCase().includes(lowerQuery)) {
+          suggestions.push({
+            type: 'community',
+            value: community.name,
+            label: `${community.name} - ${community.city}`
+          });
+        }
+      });
+      
+      // City suggestions
+      const cities = [...new Set(sampleCommunities.map(c => c.city))];
+      cities.forEach(city => {
+        if (city.toLowerCase().includes(lowerQuery)) {
+          suggestions.push({
+            type: 'city',
+            value: city,
+            label: `${city} Area`
+          });
+        }
+      });
+      
+      // Region suggestions
+      const regions = [...new Set(sampleCommunities.map(c => c.region))];
+      regions.forEach(region => {
+        if (region.toLowerCase().includes(lowerQuery)) {
+          suggestions.push({
+            type: 'region',
+            value: region,
+            label: region
+          });
+        }
+      });
+    } else {
+      // Neighborhood suggestions
+      sampleNeighborhoods.forEach(neighborhood => {
+        if (neighborhood.name.toLowerCase().includes(lowerQuery)) {
+          suggestions.push({
+            type: 'neighborhood',
+            value: neighborhood.name,
+            label: `${neighborhood.name} - ${neighborhood.city}`
+          });
+        }
+      });
+      
+      // Community suggestions for neighborhoods
+      const communityNames = [...new Set(sampleNeighborhoods.map(n => n.community))];
+      sampleCommunities.forEach(community => {
+        if (communityNames.includes(community.id) && community.name.toLowerCase().includes(lowerQuery)) {
+          suggestions.push({
+            type: 'community',
+            value: community.name,
+            label: `${community.name} Community`
+          });
+        }
+      });
+    }
     
     return suggestions.slice(0, 8); // Limit to 8 suggestions
   };
@@ -500,7 +560,7 @@ function ExplorePage() {
 
   // Handle suggestion selection
   const handleSuggestionSelect = (suggestion: {type: string, value: string, label: string}) => {
-    if (suggestion.type === 'community' || suggestion.type === 'city') {
+    if (suggestion.type === 'community' || suggestion.type === 'city' || suggestion.type === 'neighborhood') {
       setSearchQuery(suggestion.value);
     } else if (suggestion.type === 'region') {
       setRegionFilter(suggestion.value);
@@ -574,10 +634,47 @@ function ExplorePage() {
     }
   });
 
+  // Filter neighborhoods based on search criteria (when in neighborhood mode)
+  const filteredNeighborhoods = sampleNeighborhoods.filter(neighborhood => {
+    const matchesSearch = neighborhood.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         neighborhood.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         neighborhood.community.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCity = selectedCity === 'Any' || neighborhood.city === selectedCity;
+    const matchesRegion = regionFilter === 'Any' || neighborhood.region === regionFilter;
+    
+    // Community filter for neighborhoods
+    const matchesCommunity = selectedCommunity === 'Any' || neighborhood.community === selectedCommunity;
+    
+    // Price filtering for neighborhoods (convert community price symbols to ranges)
+    const matchesPrice = priceRange === 'Any' || (
+      priceRange === '$' && neighborhood.medianHomePrice < 400000 ||
+      priceRange === '$$' && neighborhood.medianHomePrice >= 400000 && neighborhood.medianHomePrice < 600000 ||
+      priceRange === '$$$' && neighborhood.medianHomePrice >= 600000
+    );
+    
+    return matchesSearch && matchesCity && matchesRegion && matchesPrice && matchesCommunity;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'city':
+        return a.city.localeCompare(b.city);
+      case 'price-low':
+        return a.medianHomePrice - b.medianHomePrice;
+      case 'price-high':
+        return b.medianHomePrice - a.medianHomePrice;
+      default:
+        return 0;
+    }
+  });
+
   // Pagination logic
-  const totalPages = Math.ceil(filteredCommunities.length / communitiesPerPage);
+  const totalPages = searchType === 'communities' 
+    ? Math.ceil(filteredCommunities.length / communitiesPerPage)
+    : Math.ceil(filteredNeighborhoods.length / communitiesPerPage);
   const startIndex = (currentPage - 1) * communitiesPerPage;
   const paginatedCommunities = filteredCommunities.slice(startIndex, startIndex + communitiesPerPage);
+  const paginatedNeighborhoods = filteredNeighborhoods.slice(startIndex, startIndex + communitiesPerPage);
 
   // Reset to page 1 when filters change
   React.useEffect(() => {
@@ -676,7 +773,7 @@ function ExplorePage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search communities, cities, regions..."
+                placeholder={searchType === 'communities' ? "Search communities, cities, regions..." : "Search neighborhoods in your area..."}
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onKeyDown={handleSearchKeyDown}
@@ -698,7 +795,8 @@ function ExplorePage() {
                     >
                       <div className="flex items-center space-x-2">
                         {suggestion.type === 'community' && <MapPin className="h-4 w-4 text-blue-600" />}
-                        {suggestion.type === 'city' && <Search className="h-4 w-4 text-green-600" />}
+                        {suggestion.type === 'neighborhood' && <Home className="h-4 w-4 text-green-600" />}
+                        {suggestion.type === 'city' && <Search className="h-4 w-4 text-orange-600" />}
                         {suggestion.type === 'region' && <MapPin className="h-4 w-4 text-purple-600" />}
                         <span className="font-medium">{suggestion.label}</span>
                         <span className="text-xs text-gray-500 capitalize">({suggestion.type})</span>
@@ -707,6 +805,30 @@ function ExplorePage() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Search Type Toggle */}
+            <div className="flex items-center bg-gray-100 rounded-lg p-1 shadow-sm">
+              <button
+                onClick={() => setSearchType('communities')}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  searchType === 'communities'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Communities
+              </button>
+              <button
+                onClick={() => setSearchType('neighborhoods')}
+                className={`px-3 py-2 text-sm font-medium rounded-md transition-all duration-200 ${
+                  searchType === 'neighborhoods'
+                    ? 'bg-white text-blue-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Neighborhoods
+              </button>
             </div>
 
             {/* Filters Toggle Button */}
@@ -842,6 +964,32 @@ function ExplorePage() {
                   </select>
                 </div>
 
+                {/* Community Filter (only show in neighborhood mode) */}
+                {searchType === 'neighborhoods' && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Community</label>
+                    <select
+                      value={selectedCommunity}
+                      onChange={(e) => {
+                        console.log('Community filter changed to:', e.target.value);
+                        setSelectedCommunity(e.target.value);
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
+                    >
+                      <option value="Any">All Communities</option>
+                      {[...new Set(sampleNeighborhoods.map(n => n.community))].map(communityId => {
+                        const community = sampleCommunities.find(c => c.id === communityId);
+                        console.log('Rendering option - ID:', communityId, 'Name:', community?.name, 'Selected:', selectedCommunity === communityId);
+                        return community ? (
+                          <option key={communityId} value={communityId}>
+                            {community.name}
+                          </option>
+                        ) : null;
+                      })}
+                    </select>
+                  </div>
+                )}
+
                 {/* Sort Options */}
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Sort By</label>
@@ -862,7 +1010,10 @@ function ExplorePage() {
               {/* Filter Actions */}
               <div className="flex items-center justify-between pt-4 border-t border-gray-200">
                 <span className="text-sm text-gray-600">
-                  {filteredCommunities.length} communities found
+                  {searchType === 'communities' 
+                    ? `${filteredCommunities.length} communities found`
+                    : `${filteredNeighborhoods.length} neighborhoods found`
+                  }
                 </span>
                 
                 <div className="flex gap-3">
@@ -876,6 +1027,7 @@ function ExplorePage() {
                       setRegionFilter('Any');
                       setPopulationFilter('Any');
                       setCommuteFilter('Any');
+                      setSelectedCommunity('Any');
                       setSortBy('name');
                     }}
                     className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200"
@@ -906,37 +1058,48 @@ function ExplorePage() {
             <div className="text-center">
               <div className="mb-4">🗺️</div>
               <p>Interactive Map</p>
-              <p className="text-sm mt-2">Map will show {filteredCommunities.length} communities</p>
+              <p className="text-sm mt-2">
+                Map will show {searchType === 'communities' ? filteredCommunities.length + ' communities' : filteredNeighborhoods.length + ' neighborhoods'}
+              </p>
             </div>
           </div>
           
           {/* Map Results Counter */}
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg px-3 py-2 border">
             <span className="text-sm font-medium text-gray-900">
-              {paginatedCommunities.length} of {filteredCommunities.length} communities
+              {searchType === 'communities' ? (
+                <>{paginatedCommunities.length} of {filteredCommunities.length} communities</>
+              ) : (
+                <>{paginatedNeighborhoods.length} of {filteredNeighborhoods.length} neighborhoods</>
+              )}
             </span>
           </div>
         </div>
 
-        {/* Right Side - Community Cards */}
+        {/* Right Side - Community/Neighborhood Cards */}
         <div className="w-1/2 flex flex-col bg-white">
           {/* Results Header */}
           <div className="p-4 border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
-                {filteredCommunities.length > 0 ? 'Texas Communities' : 'No Communities Found'}
+                {searchType === 'communities' 
+                  ? (filteredCommunities.length > 0 ? 'Texas Communities' : 'No Communities Found')
+                  : (filteredNeighborhoods.length > 0 ? 'Texas Neighborhoods' : 'No Neighborhoods Found')
+                }
               </h2>
               <span className="text-sm text-gray-600">
                 Page {currentPage} of {totalPages}
               </span>
             </div>
           </div>
-          {/* Scrollable Community Cards */}
+          {/* Scrollable Cards */}
           <div className="flex-1 overflow-y-auto">
-            {filteredCommunities.length > 0 ? (
-              <div className="p-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {paginatedCommunities.map((community) => (
+            {searchType === 'communities' ? (
+              // Community Cards Display
+              filteredCommunities.length > 0 ? (
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {paginatedCommunities.map((community) => (
                     <div key={community.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200">
                       {/* Community Image */}
                       <div className="w-full h-32 bg-gray-200 overflow-hidden relative">
@@ -1031,6 +1194,7 @@ function ExplorePage() {
                       setPriceRange('Any');
                       setSchoolRating('Any');
                       setCommunityType('Any');
+                      setSelectedCommunity('Any');
                     }}
                     className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
                   >
@@ -1038,15 +1202,123 @@ function ExplorePage() {
                   </button>
                 </div>
               </div>
+            )
+            ) : (
+              // Neighborhood Cards Display
+              filteredNeighborhoods.length > 0 ? (
+                <div className="p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {paginatedNeighborhoods.map((neighborhood) => (
+                      <div key={neighborhood.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200">
+                        {/* Neighborhood Image */}
+                        <div className="w-full h-32 bg-gray-200 overflow-hidden relative">
+                          <img
+                            src={neighborhood.image}
+                            alt={`${neighborhood.name} neighborhood`}
+                            className="w-full h-full object-cover"
+                          />
+                          
+                          {/* Type Badge */}
+                          <div className="absolute top-2 left-2">
+                            <span className="text-xs text-white bg-blue-600/80 px-2 py-1 rounded">
+                              {neighborhood.type}
+                            </span>
+                          </div>
+                          
+                          {/* Price Badge */}
+                          <div className="absolute top-2 right-2">
+                            <span className="text-xs text-white bg-green-600/80 px-2 py-1 rounded">
+                              ${(neighborhood.medianHomePrice / 1000).toFixed(0)}K
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Neighborhood Info */}
+                        <div className="p-3">
+                          <h3 className="text-base font-semibold text-gray-900 mb-1 leading-tight">
+                            {neighborhood.name}
+                          </h3>
+                          <p className="text-xs text-gray-600 mb-2">{neighborhood.city}, {neighborhood.region}</p>
+                          
+                          <div className="grid grid-cols-2 gap-2 mb-3 text-xs">
+                            <div className="text-gray-600">
+                              <span className="font-medium">{neighborhood.homes.forSale}</span> for sale
+                            </div>
+                            <div className="text-gray-600">
+                              <span className="font-medium">{neighborhood.demographics.households}</span> homes
+                            </div>
+                            <div className="text-gray-600">
+                              Walk Score: <span className="font-medium">{neighborhood.walkScore}</span>
+                            </div>
+                            <div className="text-gray-600">
+                              Avg Income: <span className="font-medium">${(neighborhood.demographics.medianIncome / 1000).toFixed(0)}K</span>
+                            </div>
+                          </div>
+                          
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => {
+                                setSelectedCommunityName(neighborhood.name);
+                                setLeadCaptureType('get_pricing');
+                                setShowLeadCapture(true);
+                              }}
+                              className="flex-1 inline-flex justify-center items-center px-2 py-1.5 text-xs font-medium text-blue-900 bg-white border border-blue-200 hover:bg-blue-50 rounded transition-colors duration-200"
+                            >
+                              View Details
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedCommunityName(neighborhood.name);
+                                setLeadCaptureType('schedule_tour');
+                                setShowLeadCapture(true);
+                              }}
+                              className="flex-1 inline-flex justify-center items-center px-2 py-1.5 text-xs font-medium text-white bg-green-600 hover:bg-green-700 rounded transition-colors duration-200"
+                            >
+                              🏠 Tour
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-center p-8">
+                  <div className="text-center">
+                    <div className="text-gray-400 mb-4">
+                      <Home className="h-12 w-12 mx-auto mb-4" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No neighborhoods match your criteria</h3>
+                    <p className="text-gray-600 mb-4">Try adjusting your filters or search terms</p>
+                    <button
+                      onClick={() => {
+                        setSearchQuery('');
+                        setSelectedCity('Any');
+                        setPriceRange('Any');
+                        setRegionFilter('Any');
+                        setSelectedCommunity('Any');
+                      }}
+                      className="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-900 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors duration-200"
+                    >
+                      Clear All Filters
+                    </button>
+                  </div>
+                </div>
+              )
             )}
           </div>
 
           {/* Pagination Footer */}
-          {filteredCommunities.length > 0 && totalPages > 1 && (
+          {((searchType === 'communities' && filteredCommunities.length > 0) || 
+            (searchType === 'neighborhoods' && filteredNeighborhoods.length > 0)) && totalPages > 1 && (
             <div className="border-t border-gray-200 bg-white px-4 py-3">
               <div className="flex items-center justify-between">
                 <div className="text-sm text-gray-700">
-                  Showing {startIndex + 1} to {Math.min(startIndex + communitiesPerPage, filteredCommunities.length)} of {filteredCommunities.length} communities
+                  {searchType === 'communities' ? (
+                    <>Showing {startIndex + 1} to {Math.min(startIndex + communitiesPerPage, filteredCommunities.length)} of {filteredCommunities.length} communities</>
+                  ) : (
+                    <>Showing {startIndex + 1} to {Math.min(startIndex + communitiesPerPage, filteredNeighborhoods.length)} of {filteredNeighborhoods.length} neighborhoods</>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <button

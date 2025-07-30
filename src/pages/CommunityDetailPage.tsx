@@ -248,19 +248,30 @@ function CommunityDetailPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {/* Generate Report Button */}
+        {/* Action Buttons */}
         <div className="text-center mb-8">
-          <Link
-            to={`/reports?community=${id}`}
-            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-900 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-800 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-          >
-            <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            Compare Communities
-          </Link>
-          <p className="text-sm text-gray-600 mt-2">
-            Line up your communities for a side by side report
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Link
+              to={`/reports?community=${id}`}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-blue-900 to-blue-800 text-white font-semibold rounded-lg hover:from-blue-800 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Compare Communities
+            </Link>
+            
+            <Link
+              to={`/explore?type=neighborhoods&community=${id}`}
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              <Home className="h-5 w-5 mr-2" />
+              Explore {communityData.name} Neighborhoods
+            </Link>
+          </div>
+          
+          <p className="text-sm text-gray-600 mt-3">
+            Compare communities side-by-side or explore neighborhoods within {communityData.name}
           </p>
         </div>
 
@@ -420,7 +431,24 @@ function CommunityDetailPage() {
             <p className="text-blue-100 text-lg">Connect with local experts and get the information you need</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
+            {/* Explore Neighborhoods Button - Featured */}
+            <div className="md:col-span-2 lg:col-span-1">
+              <Link
+                to={`/explore?type=neighborhoods&community=${id}`}
+                className="bg-indigo-600 text-white p-6 rounded-lg hover:bg-indigo-700 transition-all duration-200 shadow-sm group block text-center h-full"
+              >
+                <div className="flex items-center justify-center mb-3">
+                  <Home className="h-8 w-8 text-white" />
+                </div>
+                <h4 className="font-bold text-lg mb-2">Explore {communityData.name} Neighborhoods</h4>
+                <p className="text-sm text-indigo-100">Browse specific neighborhoods within this community and find your perfect area</p>
+                <div className="mt-3 text-xs bg-white bg-opacity-20 text-white px-2 py-1 rounded-full inline-block">
+                  🏘️ Neighborhood Explorer
+                </div>
+              </Link>
+            </div>
+
             <button
               onClick={() => {
                 setLeadCaptureType('contact_realtor');
