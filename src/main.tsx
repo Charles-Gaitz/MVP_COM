@@ -9,22 +9,25 @@ import AboutPage from './pages/AboutPage.tsx';
 import FavoritesPage from './pages/FavoritesPage.tsx';
 import ReportsPage from './pages/ReportsPage.tsx';
 import { UserProvider } from './contexts/UserContext.tsx';
+import { ComparisonProvider } from './contexts/ComparisonContext.tsx';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <UserProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<App />} />
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/community/:id" element={<CommunityDetailPage />} />
-          <Route path="/news/:id" element={<NewsDetailPage />} />
-          <Route path="/favorites" element={<FavoritesPage />} />
-          <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/about" element={<AboutPage />} />
-        </Routes>
-      </Router>
+      <ComparisonProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<App />} />
+            <Route path="/explore" element={<ExplorePage />} />
+            <Route path="/community/:id" element={<CommunityDetailPage />} />
+            <Route path="/news/:id" element={<NewsDetailPage />} />
+            <Route path="/favorites" element={<FavoritesPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+          </Routes>
+        </Router>
+      </ComparisonProvider>
     </UserProvider>
   </React.StrictMode>,
 );

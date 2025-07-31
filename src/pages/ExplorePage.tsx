@@ -1,363 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Search, Heart, ChevronLeft, ChevronRight, User, Scale, MapPin, Filter, ChevronDown, ChevronUp, Home } from 'lucide-react';
-import { useUser } from '../contexts/UserContext';
-import { ComparisonTool } from '../components/ComparisonTool';
+import { Search, Heart, ChevronLeft, ChevronRight, MapPin, Filter, ChevronDown, ChevronUp, Home } from 'lucide-react';
+import { useComparison } from '../contexts/ComparisonContext';
+import { Navigation } from '../components/Navigation';
 import { AuthModal } from '../components/AuthModal';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
-import { sampleNeighborhoods, type Neighborhood } from '../data/neighborhoods';
+import { ComparisonLimitPopup } from '../components/ComparisonLimitPopup';
+import { sampleNeighborhoods } from '../data/neighborhoods';
+import { getBasicCommunityData, type CommunityBasic } from '../data/communities';
 
-interface CommunityCard {
-  id: string;
-  name: string;
-  city: string;
-  region: string;
-  price: string;
-  schoolRating: string;
-  medianHomePrice: number;
-  population: number;
-  crimeRate: number;
-  avgCommute: number;
-  walkScore: number;
-  type: string;
-  image: string;
-}
+interface CommunityCard extends CommunityBasic {}
 
-const sampleCommunities: CommunityCard[] = [
-  {
-    id: 'westlake',
-    name: 'Westlake',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 485000,
-    population: 3438,
-    crimeRate: 0.8,
-    avgCommute: 28,
-    walkScore: 25,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'plano',
-    name: 'Plano',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 425000,
-    population: 285494,
-    crimeRate: 1.2,
-    avgCommute: 26,
-    walkScore: 42,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'katy',
-    name: 'Katy',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 385000,
-    population: 21894,
-    crimeRate: 1.1,
-    avgCommute: 32,
-    walkScore: 28,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'frisco',
-    name: 'Frisco',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 525000,
-    population: 200490,
-    crimeRate: 0.9,
-    avgCommute: 29,
-    walkScore: 35,
-    type: 'Master-Planned',
-    image: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'sugar-land',
-    name: 'Sugar Land',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 415000,
-    population: 118488,
-    crimeRate: 1.0,
-    avgCommute: 31,
-    walkScore: 32,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'round-rock',
-    name: 'Round Rock',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 365000,
-    population: 133372,
-    crimeRate: 1.3,
-    avgCommute: 27,
-    walkScore: 38,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/2089698/pexels-photo-2089698.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'allen',
-    name: 'Allen',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A+',
-    medianHomePrice: 445000,
-    population: 105623,
-    crimeRate: 0.7,
-    avgCommute: 24,
-    walkScore: 29,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1396132/pexels-photo-1396132.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'pearland',
-    name: 'Pearland',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 395000,
-    population: 125817,
-    crimeRate: 1.2,
-    avgCommute: 33,
-    walkScore: 26,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1370704/pexels-photo-1370704.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'cedar-park',
-    name: 'Cedar Park',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 375000,
-    population: 77595,
-    crimeRate: 1.1,
-    avgCommute: 30,
-    walkScore: 24,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1396115/pexels-photo-1396115.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'mckinney',
-    name: 'McKinney',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A+',
-    medianHomePrice: 455000,
-    population: 199177,
-    crimeRate: 1.0,
-    avgCommute: 28,
-    walkScore: 31,
-    type: 'Historic',
-    image: 'https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'the-woodlands',
-    name: 'The Woodlands',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 535000,
-    population: 114436,
-    crimeRate: 0.6,
-    avgCommute: 35,
-    walkScore: 22,
-    type: 'Master-Planned',
-    image: 'https://images.pexels.com/photos/1396117/pexels-photo-1396117.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'southlake',
-    name: 'Southlake',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 685000,
-    population: 31684,
-    crimeRate: 0.5,
-    avgCommute: 32,
-    walkScore: 18,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1438834/pexels-photo-1438834.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'flower-mound',
-    name: 'Flower Mound',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 475000,
-    population: 78854,
-    crimeRate: 0.8,
-    avgCommute: 31,
-    walkScore: 20,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/280221/pexels-photo-280221.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'leander',
-    name: 'Leander',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$',
-    schoolRating: 'B+',
-    medianHomePrice: 295000,
-    population: 67124,
-    crimeRate: 1.4,
-    avgCommute: 35,
-    walkScore: 21,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1396119/pexels-photo-1396119.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'richardson',
-    name: 'Richardson',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 385000,
-    population: 121323,
-    crimeRate: 1.5,
-    avgCommute: 25,
-    walkScore: 45,
-    type: 'Urban',
-    image: 'https://images.pexels.com/photos/323776/pexels-photo-323776.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'spring',
-    name: 'Spring',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$',
-    schoolRating: 'B+',
-    medianHomePrice: 275000,
-    population: 62559,
-    crimeRate: 1.6,
-    avgCommute: 36,
-    walkScore: 23,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1370295/pexels-photo-1370295.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'carrollton',
-    name: 'Carrollton',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$',
-    schoolRating: 'B+',
-    medianHomePrice: 285000,
-    population: 133168,
-    crimeRate: 1.7,
-    avgCommute: 27,
-    walkScore: 41,
-    type: 'Urban',
-    image: 'https://images.pexels.com/photos/2089701/pexels-photo-2089701.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'league-city',
-    name: 'League City',
-    city: 'Houston',
-    region: 'East Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 405000,
-    population: 114140,
-    crimeRate: 1.0,
-    avgCommute: 34,
-    walkScore: 25,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1370298/pexels-photo-1370298.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'grapevine',
-    name: 'Grapevine',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 425000,
-    population: 51031,
-    crimeRate: 1.3,
-    avgCommute: 26,
-    walkScore: 34,
-    type: 'Historic',
-    image: 'https://images.pexels.com/photos/280222/pexels-photo-280222.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'pflugerville',
-    name: 'Pflugerville',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$',
-    schoolRating: 'B+',
-    medianHomePrice: 315000,
-    population: 65191,
-    crimeRate: 1.2,
-    avgCommute: 32,
-    walkScore: 27,
-    type: 'Suburban',
-    image: 'https://images.pexels.com/photos/1370300/pexels-photo-1370300.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'georgetown',
-    name: 'Georgetown',
-    city: 'Austin',
-    region: 'Central Texas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 345000,
-    population: 75420,
-    crimeRate: 1.0,
-    avgCommute: 33,
-    walkScore: 22,
-    type: 'Historic',
-    image: 'https://images.pexels.com/photos/2089704/pexels-photo-2089704.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  },
-  {
-    id: 'garland',
-    name: 'Garland',
-    city: 'Dallas',
-    region: 'North Texas',
-    price: '$',
-    schoolRating: 'B',
-    medianHomePrice: 245000,
-    population: 246018,
-    crimeRate: 2.3,
-    avgCommute: 29,
-    walkScore: 43,
-    type: 'Urban',
-    image: 'https://images.pexels.com/photos/323784/pexels-photo-323784.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop'
-  }
-];
+const sampleCommunities: CommunityCard[] = getBasicCommunityData();
 
 function ExplorePage() {
-  const { user, isAuthenticated, logout } = useUser();
+  const { addCommunity, removeCommunity, isSelected, selectedCommunities } = useComparison();
   const [searchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   const [schoolRating, setSchoolRating] = useState('Any');
@@ -373,11 +30,10 @@ function ExplorePage() {
   
   // New modal states
   const [showAuthModal, setShowAuthModal] = useState(false);
-  const [showComparison, setShowComparison] = useState(false);
-  const [selectedForComparison, setSelectedForComparison] = useState<CommunityCard[]>([]);
   const [showLeadCapture, setShowLeadCapture] = useState(false);
   const [leadCaptureType, setLeadCaptureType] = useState<'contact_realtor' | 'schedule_tour' | 'get_pricing' | 'mortgage_calc'>('get_pricing');
   const [selectedCommunityName, setSelectedCommunityName] = useState('');
+  const [showComparisonLimitPopup, setShowComparisonLimitPopup] = useState(false);
   
   // Autocomplete states
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -411,6 +67,7 @@ function ExplorePage() {
     
     if (community && community !== 'Any') {
       setSelectedCommunity(community);
+      setSearchType('neighborhoods');
       console.log('Set selected community to:', community);
     }
   }, [searchParams]);
@@ -447,40 +104,26 @@ function ExplorePage() {
 
   // Handle comparison selection
   const toggleComparisonSelection = (community: CommunityCard) => {
-    setSelectedForComparison(prev => {
-      const isSelected = prev.find(c => c.id === community.id);
-      if (isSelected) {
-        return prev.filter(c => c.id !== community.id);
-      } else if (prev.length < 4) {
-        return [...prev, community];
-      }
-      return prev;
-    });
-  };
+    const comparisonCommunity = {
+      id: community.id,
+      name: community.name,
+      city: community.city,
+      price: community.price,
+      schoolRating: community.schoolRating,
+      image: community.image
+    };
 
-  const startComparison = () => {
-    if (selectedForComparison.length > 0) {
-      setShowComparison(true);
+    if (isSelected(community.id)) {
+      removeCommunity(community.id);
+    } else {
+      // Check if we can add more communities
+      if (selectedCommunities.length >= 4) {
+        setShowComparisonLimitPopup(true);
+        return;
+      }
+      addCommunity(comparisonCommunity);
     }
   };
-
-  // Convert CommunityCard to Community format for comparison
-  const convertToComparisonCommunity = (community: CommunityCard) => ({
-    id: community.id,
-    name: community.name,
-    location: `${community.city}, TX`,
-    region: community.region as 'North Texas' | 'Central Texas' | 'East Texas',
-    medianHomePrice: community.medianHomePrice,
-    population: community.population,
-    crimeRate: community.crimeRate,
-    avgCommute: community.avgCommute,
-    walkScore: community.walkScore,
-    type: community.type as 'City' | 'Suburb' | 'Small Town',
-    description: `Great community in ${community.city}`,
-    keyFeatures: ['Family-friendly', 'Good schools'],
-    schools: { elementary: 85, middle: 88, high: 90 },
-    amenities: { parks: 85, restaurants: 78, shopping: 80, healthcare: 85 }
-  });
 
   // Generate search suggestions
   const generateSuggestions = (query: string) => {
@@ -687,108 +330,7 @@ function ExplorePage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
-      <nav className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center space-x-2 text-gray-900 hover:text-blue-900 transition-colors duration-200">
-              <MapPin className="h-6 w-6 sm:h-8 sm:w-8 text-blue-900" />
-              <span className="text-lg sm:text-xl font-bold">TexasCommunities</span>
-            </Link>
-            <div className="hidden sm:flex items-center space-x-6">
-              <Link to="/explore" className="text-blue-900 font-medium">
-                Explore
-              </Link>
-              <Link to="/favorites" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                Favorites
-              </Link>
-              <Link to="/reports" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                Compare
-              </Link>
-              <Link to="/about" className="text-gray-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                About
-              </Link>
-              
-              {/* Comparison Button */}
-              {selectedForComparison.length > 0 && (
-                <button
-                  onClick={startComparison}
-                  className="flex items-center space-x-2 bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
-                >
-                  <Scale className="h-4 w-4" />
-                  <span>Compare ({selectedForComparison.length})</span>
-                </button>
-              )}
-
-              {/* User Authentication */}
-              {isAuthenticated ? (
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-3 bg-blue-50 px-4 py-2 rounded-lg">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium text-gray-900">Welcome back!</span>
-                      <span className="text-xs text-gray-600">{user?.name}</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => {
-                        // Show saved communities count or other user stats
-                        alert(`You have ${user?.savedCommunities?.length || 0} saved communities and ${user?.searchHistory?.length || 0} searches in your history.`);
-                      }}
-                      className="text-sm text-blue-600 hover:text-blue-700 px-3 py-1 border border-blue-200 rounded-lg hover:bg-blue-50 transition-colors duration-200"
-                    >
-                      My Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (window.confirm('Are you sure you want to sign out?')) {
-                          logout();
-                        }
-                      }}
-                      className="text-sm text-gray-600 hover:text-gray-700 px-3 py-1 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                    >
-                      Sign Out
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-900 text-white px-6 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium shadow-sm"
-                >
-                  Sign In / Register
-                </button>
-              )}
-            </div>
-            
-            {/* Mobile menu - simplified */}
-            <div className="sm:hidden flex items-center space-x-2">
-              {/* Comparison Button Mobile */}
-              {selectedForComparison.length > 0 && (
-                <button
-                  onClick={startComparison}
-                  className="flex items-center space-x-1 bg-blue-900 text-white px-3 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200"
-                >
-                  <Scale className="h-4 w-4" />
-                  <span className="text-sm">({selectedForComparison.length})</span>
-                </button>
-              )}
-              
-              {/* Auth Button Mobile */}
-              {!isAuthenticated && (
-                <button
-                  onClick={() => setShowAuthModal(true)}
-                  className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors duration-200 font-medium shadow-sm text-sm"
-                >
-                  Sign In
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <Navigation />
 
       {/* Enhanced Filter Bar */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
@@ -1167,9 +709,9 @@ function ExplorePage() {
                           <label className="flex items-center cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={selectedForComparison.some(c => c.id === community.id)}
+                              checked={isSelected(community.id)}
                               onChange={() => toggleComparisonSelection(community)}
-                              disabled={!selectedForComparison.some(c => c.id === community.id) && selectedForComparison.length >= 4}
+                              disabled={!isSelected(community.id) && selectedCommunities.length >= 4}
                               className="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
                             />
                             <span className="ml-1 text-xs text-white bg-black/50 px-1 rounded">Compare</span>
@@ -1454,20 +996,18 @@ function ExplorePage() {
         />
       )}
 
-      {/* Comparison Tool */}
-      {showComparison && (
-        <ComparisonTool
-          initialCommunities={selectedForComparison.map(convertToComparisonCommunity)}
-          onClose={() => setShowComparison(false)}
-        />
-      )}
-
       {/* Lead Capture Modal */}
       <LeadCaptureModal
         isOpen={showLeadCapture}
         onClose={() => setShowLeadCapture(false)}
         communityName={selectedCommunityName}
         trigger={leadCaptureType}
+      />
+
+      {/* Comparison Limit Popup */}
+      <ComparisonLimitPopup
+        isOpen={showComparisonLimitPopup}
+        onClose={() => setShowComparisonLimitPopup(false)}
       />
     </div>
   );

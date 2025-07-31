@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { MapPin, User, Mail, Smartphone, LogOut, LogIn } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { useComparison } from '../contexts/ComparisonContext';
 import { AuthModal } from './AuthModal';
 import { UserProfileModal } from './UserProfile';
 import { EmailDigestModal } from './EmailDigest';
@@ -10,11 +11,13 @@ import { MobileAppPromotionModal } from './MobileAppPromotion';
 export function Navigation() {
   const location = useLocation();
   const { user, isAuthenticated, logout } = useUser();
+  const { selectedCommunities, triggerNavAnimation, resetNavAnimation } = useComparison();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showEmailDigestModal, setShowEmailDigestModal] = useState(false);
   const [showMobileAppModal, setShowMobileAppModal] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const navigationLinks = [
     { to: "/explore", label: "Explore" },
@@ -23,9 +26,39 @@ export function Navigation() {
     { to: "/about", label: "About" }
   ];
 
+  // Handle compare tab animation
+  useEffect(() => {
+    if (triggerNavAnimation && selectedCommunities.length > 0) {
+      setIsAnimating(true);
+      const timer = setTimeout(() => {
+        setIsAnimating(false);
+        resetNavAnimation();
+      }, 1000); // Animation duration
+      
+      return () => clearTimeout(timer);
+    }
+  }, [triggerNavAnimation, selectedCommunities.length, resetNavAnimation]);
+
   const handleLogout = () => {
     logout();
     setShowUserMenu(false);
+  };
+
+  const getCompareNavClassName = () => {
+    const baseClasses = 'font-medium transition-all duration-200 relative';
+    const isComparePage = location.pathname === '/reports';
+    const hasSelections = selectedCommunities.length > 0;
+    
+    if (isComparePage) {
+      return `${baseClasses} text-blue-900 border-b-2 border-blue-900 pb-1`;
+    }
+    
+    if (hasSelections) {
+      const animationClasses = isAnimating ? 'animate-pulse' : '';
+      return `${baseClasses} text-white bg-blue-900 px-3 py-2 rounded-lg hover:bg-blue-800 ${animationClasses}`;
+    }
+    
+    return `${baseClasses} text-gray-700 hover:text-blue-900`;
   };
 
   return (
@@ -44,19 +77,42 @@ export function Navigation() {
             
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-6">
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`font-medium transition-colors duration-200 ${
-                    location.pathname === link.to
-                      ? 'text-blue-900 border-b-2 border-blue-900 pb-1'
-                      : 'text-gray-700 hover:text-blue-900'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navigationLinks.map((link) => {
+                if (link.to === '/reports') {
+                  // Special handling for Compare link
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={getCompareNavClassName()}
+                    >
+                      <span className="flex items-center">
+                        {link.label}
+                        {selectedCommunities.length > 0 && (
+                          <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-blue-900 bg-white rounded-full">
+                            {selectedCommunities.length}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  );
+                }
+                
+                // Regular navigation links
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className={`font-medium transition-colors duration-200 ${
+                      location.pathname === link.to
+                        ? 'text-blue-900 border-b-2 border-blue-900 pb-1'
+                        : 'text-gray-700 hover:text-blue-900'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
 
             {/* User Menu */}

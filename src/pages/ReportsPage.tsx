@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useComparison } from '../contexts/ComparisonContext';
 import { Link, useSearchParams } from 'react-router-dom';
 import { MapPin, FileText, Plus, X, Download, BarChart3, TrendingUp, Home, GraduationCap, Shield, DollarSign, Heart, Users, TreePine, Briefcase, Cloud, ChevronDown, ChevronUp } from 'lucide-react';
 import { MarketTrends } from '../components/MarketTrends';
@@ -8,319 +9,24 @@ import { NearbyAmenities } from '../components/NearbyAmenities';
 import { EmploymentData } from '../components/EmploymentData';
 import { ClimateWeather } from '../components/ClimateWeather';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
+import { sampleCommunities as allCommunities, type CommunityDetailed } from '../data/communities';
 
-// Import community data (you might want to move this to a shared file)
-const sampleCommunities = [
-  {
-    id: 'westlake',
-    name: 'Westlake',
-    city: 'Austin',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 485000,
-    population: 3438,
-    crimeRate: 0.8,
-    avgCommute: 28,
-    walkScore: 25,
-    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    // Additional detailed data
-    demographics: {
-      medianAge: 42,
-      medianHouseholdIncome: 125000,
-      collegeEducated: 85,
-      marriedCouples: 72
-    },
-    housing: {
-      homeOwnership: 88,
-      avgHomeSize: 2800,
-      propertyTax: 2.1,
-      avgRent: 2200
-    },
-    amenities: {
-      parks: 12,
-      restaurants: 25,
-      shopping: 8,
-      healthcare: 5,
-      entertainment: 6
-    },
-    employment: {
-      unemploymentRate: 2.1,
-      majorEmployers: ['Dell Technologies', 'IBM', 'Apple'],
-      averageWage: 75000
-    },
-    climate: {
-      avgTemp: 78,
-      rainyDays: 85,
-      sunnyDays: 230
-    }
-  },
-  {
-    id: 'plano',
-    name: 'Plano',
-    city: 'Dallas',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 425000,
-    population: 285494,
-    crimeRate: 1.2,
-    avgCommute: 26,
-    walkScore: 42,
-    image: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    demographics: {
-      medianAge: 39,
-      medianHouseholdIncome: 95000,
-      collegeEducated: 78,
-      marriedCouples: 68
-    },
-    housing: {
-      homeOwnership: 82,
-      avgHomeSize: 2400,
-      propertyTax: 2.3,
-      avgRent: 1800
-    },
-    amenities: {
-      parks: 35,
-      restaurants: 180,
-      shopping: 25,
-      healthcare: 15,
-      entertainment: 20
-    },
-    employment: {
-      unemploymentRate: 2.8,
-      majorEmployers: ['Toyota', 'Frito Lay', 'JCPenney'],
-      averageWage: 68000
-    },
-    climate: {
-      avgTemp: 76,
-      rainyDays: 82,
-      sunnyDays: 225
-    }
-  },
-  {
-    id: 'katy',
-    name: 'Katy',
-    city: 'Houston',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 385000,
-    population: 21894,
-    crimeRate: 1.1,
-    avgCommute: 32,
-    walkScore: 28,
-    image: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    demographics: {
-      medianAge: 36,
-      medianHouseholdIncome: 88000,
-      collegeEducated: 72,
-      marriedCouples: 75
-    },
-    housing: {
-      homeOwnership: 85,
-      avgHomeSize: 2600,
-      propertyTax: 2.8,
-      avgRent: 1650
-    },
-    amenities: {
-      parks: 18,
-      restaurants: 85,
-      shopping: 12,
-      healthcare: 8,
-      entertainment: 10
-    },
-    employment: {
-      unemploymentRate: 3.2,
-      majorEmployers: ['Energy Corridor', 'Memorial Hermann', 'BP America'],
-      averageWage: 72000
-    },
-    climate: {
-      avgTemp: 80,
-      rainyDays: 105,
-      sunnyDays: 210
-    }
-  },
-  {
-    id: 'frisco',
-    name: 'Frisco',
-    city: 'Dallas',
-    price: '$$$',
-    schoolRating: 'A+',
-    medianHomePrice: 520000,
-    population: 200509,
-    crimeRate: 0.9,
-    avgCommute: 24,
-    walkScore: 35,
-    image: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    demographics: {
-      medianAge: 35,
-      medianHouseholdIncome: 110000,
-      collegeEducated: 82,
-      marriedCouples: 70
-    },
-    housing: {
-      homeOwnership: 80,
-      avgHomeSize: 2900,
-      propertyTax: 2.2,
-      avgRent: 2100
-    },
-    amenities: {
-      parks: 28,
-      restaurants: 120,
-      shopping: 18,
-      healthcare: 12,
-      entertainment: 15
-    },
-    employment: {
-      unemploymentRate: 2.3,
-      majorEmployers: ['T-Mobile', 'FC Dallas', 'Comerica Bank'],
-      averageWage: 78000
-    },
-    climate: {
-      avgTemp: 75,
-      rainyDays: 80,
-      sunnyDays: 235
-    }
-  },
-  {
-    id: 'sugar-land',
-    name: 'Sugar Land',
-    city: 'Houston',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 445000,
-    population: 118486,
-    crimeRate: 1.0,
-    avgCommute: 29,
-    walkScore: 38,
-    image: 'https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    demographics: {
-      medianAge: 38,
-      medianHouseholdIncome: 105000,
-      collegeEducated: 80,
-      marriedCouples: 73
-    },
-    housing: {
-      homeOwnership: 84,
-      avgHomeSize: 2700,
-      propertyTax: 2.6,
-      avgRent: 1900
-    },
-    amenities: {
-      parks: 22,
-      restaurants: 95,
-      shopping: 15,
-      healthcare: 10,
-      entertainment: 12
-    },
-    employment: {
-      unemploymentRate: 2.5,
-      majorEmployers: ['Schlumberger', 'Fluor', 'Imperial Sugar'],
-      averageWage: 74000
-    },
-    climate: {
-      avgTemp: 79,
-      rainyDays: 98,
-      sunnyDays: 215
-    }
-  },
-  {
-    id: 'round-rock',
-    name: 'Round Rock',
-    city: 'Austin',
-    price: '$$',
-    schoolRating: 'A',
-    medianHomePrice: 395000,
-    population: 133372,
-    crimeRate: 1.3,
-    avgCommute: 25,
-    walkScore: 31,
-    image: 'https://images.pexels.com/photos/2089698/pexels-photo-2089698.jpeg?auto=compress&cs=tinysrgb&w=600&h=360&fit=crop',
-    demographics: {
-      medianAge: 34,
-      medianHouseholdIncome: 82000,
-      collegeEducated: 68,
-      marriedCouples: 65
-    },
-    housing: {
-      homeOwnership: 78,
-      avgHomeSize: 2300,
-      propertyTax: 2.4,
-      avgRent: 1700
-    },
-    amenities: {
-      parks: 25,
-      restaurants: 110,
-      shopping: 20,
-      healthcare: 8,
-      entertainment: 14
-    },
-    employment: {
-      unemploymentRate: 3.1,
-      majorEmployers: ['Dell', 'IKEA', 'Seton Healthcare'],
-      averageWage: 65000
-    },
-    climate: {
-      avgTemp: 77,
-      rainyDays: 88,
-      sunnyDays: 220
-    }
-  }
-];
+const sampleCommunities = allCommunities;
+type Community = CommunityDetailed;
 
-interface Community {
-  id: string;
-  name: string;
-  city: string;
-  price: string;
-  schoolRating: string;
-  medianHomePrice: number;
-  population: number;
-  crimeRate: number;
-  avgCommute: number;
-  walkScore: number;
-  image: string;
-  demographics: {
-    medianAge: number;
-    medianHouseholdIncome: number;
-    collegeEducated: number;
-    marriedCouples: number;
-  };
-  housing: {
-    homeOwnership: number;
-    avgHomeSize: number;
-    propertyTax: number;
-    avgRent: number;
-  };
-  amenities: {
-    parks: number;
-    restaurants: number;
-    shopping: number;
-    healthcare: number;
-    entertainment: number;
-  };
-  employment: {
-    unemploymentRate: number;
-    majorEmployers: string[];
-    averageWage: number;
-  };
-  climate: {
-    avgTemp: number;
-    rainyDays: number;
-    sunnyDays: number;
-  };
-}
 
 function ReportsPage() {
   const [searchParams] = useSearchParams();
-  const [selectedCommunities, setSelectedCommunities] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
-  
   // Accordion state management
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']));
-  
   // Lead capture state
   const [showLeadCapture, setShowLeadCapture] = useState(false);
+
+  // Use global comparison context
+  const { selectedCommunities, addCommunity, removeCommunity } = useComparison();
 
   const toggleSection = (sectionId: string) => {
     setExpandedSections(prev => {
@@ -337,10 +43,12 @@ function ReportsPage() {
   // Check if a community ID was passed in the URL
   useEffect(() => {
     const communityId = searchParams.get('community');
-    if (communityId && !selectedCommunities.includes(communityId)) {
-      setSelectedCommunities([communityId]);
+    if (communityId && !selectedCommunities.some(c => c.id === communityId)) {
+      // Find the community in sampleCommunities
+      const comm = sampleCommunities.find(c => c.id === communityId);
+      if (comm) addCommunity(comm);
     }
-  }, [searchParams, selectedCommunities]);
+  }, [searchParams, selectedCommunities, addCommunity]);
 
   // Load favorites from localStorage on component mount
   useEffect(() => {
@@ -350,26 +58,14 @@ function ReportsPage() {
     }
   }, []);
 
-  const addCommunity = (communityId: string) => {
-    if (!selectedCommunities.includes(communityId) && selectedCommunities.length < 4) {
-      setSelectedCommunities([...selectedCommunities, communityId]);
-    }
-  };
-
-  const removeCommunity = (communityId: string) => {
-    setSelectedCommunities(selectedCommunities.filter(id => id !== communityId));
-  };
-
   const selectedCommunitiesData = selectedCommunities
-    .map(id => sampleCommunities.find(c => c.id === id))
+    .map(sel => sampleCommunities.find(c => c.id === sel.id))
     .filter(Boolean) as Community[];
 
   const filteredCommunities = sampleCommunities.filter(community => {
     const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       community.city.toLowerCase().includes(searchQuery.toLowerCase());
-    
     const matchesFavorites = showFavoritesOnly ? favorites.includes(community.id) : true;
-    
     return matchesSearch && matchesFavorites;
   });
 
@@ -513,7 +209,7 @@ function ReportsPage() {
               {/* Available Communities */}
               <div className="space-y-2 max-h-96 overflow-y-auto">
                 {filteredCommunities
-                  .filter(community => !selectedCommunities.includes(community.id))
+                  .filter(community => !selectedCommunities.some(c => c.id === community.id))
                   .length === 0 ? (
                   <div className="text-center py-8">
                     <div className="text-gray-400 mb-2">
@@ -532,11 +228,11 @@ function ReportsPage() {
                   </div>
                 ) : (
                   filteredCommunities
-                    .filter(community => !selectedCommunities.includes(community.id))
+                    .filter(community => !selectedCommunities.some(c => c.id === community.id))
                     .map((community) => (
                       <button
                         key={community.id}
-                        onClick={() => addCommunity(community.id)}
+                        onClick={() => addCommunity(community)}
                         disabled={selectedCommunities.length >= 4}
                         className={`w-full text-left p-3 rounded-lg border transition-colors duration-200 ${
                           selectedCommunities.length >= 4
@@ -1026,7 +722,7 @@ function ReportsPage() {
                             {selectedCommunitiesData.map((community) => (
                               <td key={community.id} className="px-6 py-4 text-sm text-gray-700">
                                 <div className="space-y-1">
-                                  {community.employment.majorEmployers.map((employer, index) => (
+                                  {community.employment.majorEmployers.map((employer: string, index: number) => (
                                     <div key={index} className="text-xs bg-gray-100 px-2 py-1 rounded">
                                       {employer}
                                     </div>
