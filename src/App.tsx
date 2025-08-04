@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { MapPin, ArrowRight, Search, Users, TrendingUp, Heart, Shield, Star } from 'lucide-react';
 import LocalNewsSection from './components/LocalNewsSection';
-import PersonalRecommendations from './components/PersonalRecommendations';
+import { APIUsageDashboard } from './components/APIUsageDashboard';
 
 function App() {
   return (
@@ -237,11 +237,21 @@ function App() {
       {/* Personal Recommendations Section */}
       <div className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <PersonalRecommendations 
-            maxRecommendations={6}
-            showHeader={true}
-            className=""
-          />
+          <div className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Featured Communities
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Discover some of the most popular communities in Texas.
+            </p>
+            <Link
+              to="/explore"
+              className="inline-flex items-center px-8 py-3 text-lg font-semibold text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-all duration-200"
+            >
+              Explore All Communities
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -262,6 +272,9 @@ function App() {
           </div>
         </div>
       </footer>
+
+      {/* API Usage Dashboard - Developer Panel */}
+      <APIUsageDashboard />
     </div>
   );
 }

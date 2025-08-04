@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, TrendingUp, Star, MapPin, ArrowRight, Filter } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
+import { communityService } from '../data/communitiesDatabase';
 
 interface RecommendationReason {
   type: 'preference_match' | 'behavior_based' | 'similar_users' | 'trending';
@@ -41,78 +42,61 @@ export function PersonalRecommendations({
     generatePersonalizedRecommendations();
   }, [user, isAuthenticated]);
 
-  const generatePersonalizedRecommendations = () => {
+  const generatePersonalizedRecommendations = async () => {
     setLoading(true);
     
-    // Simulated recommendation algorithm
-    setTimeout(() => {
+    try {
       if (!user || !isAuthenticated) {
-        // Generate generic popular recommendations for non-authenticated users
-        const genericRecommendations = getGenericRecommendations();
-        setRecommendations(genericRecommendations.slice(0, maxRecommendations));
+        // Generate featured recommendations for non-authenticated users
+        const featuredCommunities = await communityService.getFeaturedCommunities();
+        
+        const genericRecommendations: CommunityRecommendation[] = featuredCommunities
+          .slice(0, maxRecommendations)
+          .map((community, index) => ({
+            id: community.id,
+            name: community.name,
+            city: community.city,
+            price: community.price,
+            schoolRating: community.schoolRating,
+            image: community.image,
+            matchScore: 85 - (index * 5), // Descending scores
+            reasons: [
+              {
+                type: 'trending',
+                reason: 'Popular community in Texas',
+                score: 20
+              },
+              {
+                type: 'preference_match',
+                reason: 'Great schools and amenities',
+                score: 15
+              }
+            ],
+            isTrending: index < 2
+          }));
+        
+        setRecommendations(genericRecommendations);
       } else {
         // Generate personalized recommendations based on user data
-        const personalizedRecs = getPersonalizedRecommendations();
+        const personalizedRecs = await getPersonalizedRecommendations();
         setRecommendations(personalizedRecs.slice(0, maxRecommendations));
       }
+    } catch (error) {
+      console.error('Error generating recommendations:', error);
+      setRecommendations([]);
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
-  const getPersonalizedRecommendations = (): CommunityRecommendation[] => {
+  const getPersonalizedRecommendations = async (): Promise<CommunityRecommendation[]> => {
     if (!user) return [];
 
     const favorites = getFavorites();
-    const { preferences, searchHistory, savedCommunities } = user;
+    const { preferences, searchHistory } = user;
     
-    // Sample communities data (in real app, this would come from API)
-    const allCommunities = [
-      {
-        id: 'austin-hills',
-        name: 'Austin Hills',
-        city: 'Austin',
-        price: '$$',
-        schoolRating: 'A',
-        image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg',
-        demographics: { familyFriendly: true, youngProfessionals: false },
-        priceRange: [400000, 600000],
-        amenities: ['schools', 'parks', 'shopping']
-      },
-      {
-        id: 'tech-ridge',
-        name: 'Tech Ridge',
-        city: 'Austin',
-        price: '$$$',
-        schoolRating: 'A+',
-        image: 'https://images.pexels.com/photos/1438832/pexels-photo-1438832.jpeg',
-        demographics: { familyFriendly: false, youngProfessionals: true },
-        priceRange: [600000, 800000],
-        amenities: ['tech_hub', 'nightlife', 'restaurants']
-      },
-      {
-        id: 'family-grove',
-        name: 'Family Grove',
-        city: 'Houston',
-        price: '$',
-        schoolRating: 'B+',
-        image: 'https://images.pexels.com/photos/1029599/pexels-photo-1029599.jpeg',
-        demographics: { familyFriendly: true, youngProfessionals: false },
-        priceRange: [250000, 400000],
-        amenities: ['schools', 'parks', 'playgrounds']
-      },
-      {
-        id: 'downtown-lofts',
-        name: 'Downtown Lofts',
-        city: 'Dallas',
-        price: '$$$',
-        schoolRating: 'B',
-        image: 'https://images.pexels.com/photos/280229/pexels-photo-280229.jpeg',
-        demographics: { familyFriendly: false, youngProfessionals: true },
-        priceRange: [500000, 900000],
-        amenities: ['nightlife', 'restaurants', 'transit']
-      }
-    ];
-
+    // Get all communities from database
+    const allCommunities = await communityService.getAllCommunities();
     const recommendations: CommunityRecommendation[] = [];
 
     allCommunities.forEach(community => {
@@ -122,7 +106,100 @@ export function PersonalRecommendations({
       // Price preference matching
       const userMinPrice = preferences.priceRange[0];
       const userMaxPrice = preferences.priceRange[1];
-      const communityInRange = community.priceRange[0] <= userMaxPrice && community.priceRange[1] >= userMinPrice;
+      const communityInRange = community.medianHomePrice >= userMinPrice && community.medianHomePrice <= userMaxPrice;
+      
+      if (communityInRange) {
+        reasons.push({
+          type: 'preference_match',
+          reason: 'Matches your price range',
+          score: 25
+        });
+        matchScore += 25;
+      }
+
+      // Search history analysis
+      const searchedCities = searchHistory
+        .map(search => search.query.toLowerCase())
+        .filter(query => query.includes(community.city.toLowerCase()));
+      
+      if (searchedCities.length > 0) {
+        reasons.push({
+          type: 'behavior_based',
+          reason: `You've searched for ${community.city} communities before`,
+          score: 20
+        });
+        matchScore += 20;
+      }
+
+      // School rating preference
+      if (preferences.schoolRating && community.schoolRating === preferences.schoolRating) {
+        reasons.push({
+          type: 'preference_match',
+          reason: 'Matches your school rating preference',
+          score: 20
+        });
+        matchScore += 20;
+      }
+
+      // Add base score for all communities
+      matchScore += 30;
+
+      // Add some randomness for diversity
+      matchScore += Math.random() * 15;
+
+      if (reasons.length > 0) {
+        recommendations.push({
+          id: community.id,
+          name: community.name,
+          city: community.city,
+          price: community.price,
+          schoolRating: community.schoolRating,
+          image: community.image,
+          matchScore: Math.round(matchScore),
+          reasons: reasons,
+          isNew: Math.random() > 0.7,
+          isTrending: matchScore > 60
+        });
+      }
+    });
+
+    return recommendations.sort((a, b) => b.matchScore - a.matchScore);
+  };
+
+  const getGenericRecommendations = async (): Promise<CommunityRecommendation[]> => {
+    try {
+      const allCommunities = await communityService.getAllCommunities();
+      
+      // Return featured communities for non-authenticated users
+      return allCommunities.slice(0, maxRecommendations).map((community, index) => ({
+        id: community.id,
+        name: community.name,
+        city: community.city,
+        price: community.price,
+        schoolRating: community.schoolRating,
+        image: community.image,
+        matchScore: 85 - (index * 5), // Descending scores
+        reasons: [
+          {
+            type: 'trending',
+            reason: 'Popular community in Texas',
+            score: 20
+          },
+          {
+            type: 'preference_match',
+            reason: 'Great schools and amenities',
+            score: 15
+          }
+        ],
+        isTrending: index < 2
+      }));
+    } catch (error) {
+      console.error('Error getting generic recommendations:', error);
+      return [];
+    }
+  };
+
+  const getPersonalizedRecommendations = async (): Promise<CommunityRecommendation[]> => {
       
       if (communityInRange) {
         reasons.push({

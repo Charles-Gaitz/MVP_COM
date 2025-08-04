@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Search, Heart, ChevronLeft, ChevronRight, MapPin, Filter, ChevronDown, ChevronUp, Home } from 'lucide-react';
 import { useComparison } from '../contexts/ComparisonContext';
@@ -7,11 +7,24 @@ import { AuthModal } from '../components/AuthModal';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
 import { ComparisonLimitPopup } from '../components/ComparisonLimitPopup';
 import { sampleNeighborhoods } from '../data/neighborhoods';
-import { getBasicCommunityData, type CommunityBasic } from '../data/communities';
+import { DatabaseService } from '../lib/supabase-enhanced';
+import { InteractiveMap } from '../components/InteractiveMap';
 
-interface CommunityCard extends CommunityBasic {}
-
-const sampleCommunities: CommunityCard[] = getBasicCommunityData();
+interface CommunityCard {
+  id: string;
+  name: string;
+  city: string;
+  region: string;
+  price: string;
+  schoolRating: string;
+  medianHomePrice: number;
+  population: number;
+  crimeRate: number;
+  avgCommute: number;
+  walkScore: number;
+  type: string;
+  image: string;
+}
 
 function ExplorePage() {
   const { addCommunity, removeCommunity, isSelected, selectedCommunities } = useComparison();
@@ -27,6 +40,12 @@ function ExplorePage() {
   const [sortBy, setSortBy] = useState('name');
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState<string[]>([]);
+  
+  // Database state
+  const [communities, setCommunities] = useState<CommunityCard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [availableCities, setAvailableCities] = useState<string[]>([]);
   
   // New modal states
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -53,8 +72,52 @@ function ExplorePage() {
   
   const communitiesPerPage = 12;
 
+  // Load communities from database
+  useEffect(() => {
+    const loadCommunities = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        // Load from enhanced database service with real-time API integration
+        const [communitiesData, citiesData] = await Promise.all([
+          DatabaseService.getAllCommunities(),
+          DatabaseService.getUniqueCities()
+        ]);
+        
+        // Transform enhanced community data to CommunityCard format
+        const transformedCommunities: CommunityCard[] = communitiesData.map(community => ({
+          id: community.id,
+          name: community.name,
+          city: community.city,
+          region: community.state,
+          price: `$${(community.median_home_price / 1000).toFixed(0)}K`,
+          schoolRating: community.school_rating.toString(),
+          medianHomePrice: community.median_home_price,
+          population: community.population,
+          crimeRate: community.crime_rate,
+          avgCommute: community.commute_time_downtown,
+          walkScore: community.walkability_score,
+          type: 'Community',
+          image: community.images[0] || '/api/placeholder/400/300'
+        }));
+        
+        setCommunities(transformedCommunities);
+        setAvailableCities(citiesData);
+        console.log('✅ Communities loaded:', communitiesData.length);
+      } catch (err) {
+        console.error('Error loading communities:', err);
+        setError('Failed to load communities. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCommunities();
+  }, []);
+
   // Initialize from URL parameters
-  React.useEffect(() => {
+  useEffect(() => {
     const type = searchParams.get('type');
     const community = searchParams.get('community');
     
@@ -134,7 +197,7 @@ function ExplorePage() {
     
     if (searchType === 'communities') {
       // Community name suggestions
-      sampleCommunities.forEach(community => {
+      communities.forEach((community: CommunityCard) => {
         if (community.name.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             type: 'community',
@@ -145,8 +208,8 @@ function ExplorePage() {
       });
       
       // City suggestions
-      const cities = [...new Set(sampleCommunities.map(c => c.city))];
-      cities.forEach(city => {
+      const cities = [...new Set(communities.map((c: CommunityCard) => c.city))];
+      cities.forEach((city: string) => {
         if (city.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             type: 'city',
@@ -157,8 +220,8 @@ function ExplorePage() {
       });
       
       // Region suggestions
-      const regions = [...new Set(sampleCommunities.map(c => c.region))];
-      regions.forEach(region => {
+      const regions = [...new Set(communities.map((c: CommunityCard) => c.region))];
+      regions.forEach((region: string) => {
         if (region.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             type: 'region',
@@ -169,7 +232,7 @@ function ExplorePage() {
       });
     } else {
       // Neighborhood suggestions
-      sampleNeighborhoods.forEach(neighborhood => {
+      sampleNeighborhoods.forEach((neighborhood: any) => {
         if (neighborhood.name.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             type: 'neighborhood',
@@ -180,8 +243,8 @@ function ExplorePage() {
       });
       
       // Community suggestions for neighborhoods
-      const communityNames = [...new Set(sampleNeighborhoods.map(n => n.community))];
-      sampleCommunities.forEach(community => {
+      const communityNames = [...new Set(sampleNeighborhoods.map((n: any) => n.community))];
+      communities.forEach((community: CommunityCard) => {
         if (communityNames.includes(community.id) && community.name.toLowerCase().includes(lowerQuery)) {
           suggestions.push({
             type: 'community',
@@ -240,7 +303,7 @@ function ExplorePage() {
   };
 
   // Filter communities based on all criteria
-  const filteredCommunities = sampleCommunities.filter(community => {
+  const filteredCommunities = communities.filter((community: CommunityCard) => {
     const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          community.city.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesSchool = schoolRating === 'Any' || community.schoolRating === schoolRating;
@@ -261,7 +324,7 @@ function ExplorePage() {
     
     return matchesSearch && matchesSchool && matchesPrice && matchesCity && 
            matchesType && matchesRegion && matchesPopulation && matchesCommute;
-  }).sort((a, b) => {
+  }).sort((a: CommunityCard, b: CommunityCard) => {
     switch (sortBy) {
       case 'name':
         return a.name.localeCompare(b.name);
@@ -433,9 +496,9 @@ function ExplorePage() {
                     className="w-full px-3 py-2.5 text-base sm:text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white touch-manipulation"
                   >
                     <option value="Any">Any Metro Area</option>
-                    <option value="Austin">Austin Area</option>
-                    <option value="Dallas">Dallas Area</option>
-                    <option value="Houston">Houston Area</option>
+                    {availableCities.map((city: string) => (
+                      <option key={city} value={city}>{city} Area</option>
+                    ))}
                   </select>
                 </div>
 
@@ -546,8 +609,8 @@ function ExplorePage() {
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-900 focus:border-transparent outline-none transition-all duration-200 bg-white"
                     >
                       <option value="Any">All Communities</option>
-                      {[...new Set(sampleNeighborhoods.map(n => n.community))].map(communityId => {
-                        const community = sampleCommunities.find(c => c.id === communityId);
+                      {[...new Set(sampleNeighborhoods.map((n: any) => n.community))].map((communityId: string) => {
+                        const community = communities.find((c: CommunityCard) => c.id === communityId);
                         console.log('Rendering option - ID:', communityId, 'Name:', community?.name, 'Selected:', selectedCommunity === communityId);
                         return community ? (
                           <option key={communityId} value={communityId}>
@@ -647,17 +710,23 @@ function ExplorePage() {
 
         {/* Left Side - Map (Desktop: always visible, Mobile: conditional) */}
         <div className={`lg:w-1/2 relative ${showMobileMap ? 'block' : 'hidden lg:block'}`}>
-          <div 
-            className="w-full h-64 lg:h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-medium"
-          >
-            <div className="text-center">
-              <div className="mb-4">🗺️</div>
-              <p>Interactive Map</p>
-              <p className="text-sm mt-2">
-                Map will show {searchType === 'communities' ? filteredCommunities.length + ' communities' : filteredNeighborhoods.length + ' neighborhoods'}
-              </p>
-            </div>
-          </div>
+          <InteractiveMap
+            communities={filteredCommunities.map(community => ({
+              id: community.id,
+              name: community.name,
+              city: community.city,
+              latitude: 30.2672 + (Math.random() - 0.5) * 2, // Spread around Texas
+              longitude: -97.7431 + (Math.random() - 0.5) * 4,
+              median_home_price: community.medianHomePrice,
+              school_rating: parseFloat(community.schoolRating),
+              walkability_score: community.walkScore
+            }))}
+            className="w-full h-64 lg:h-full"
+            onCommunitySelect={(community) => {
+              // Handle community selection from map
+              console.log('Selected community from map:', community.name);
+            }}
+          />
           
           {/* Map Results Counter */}
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg px-3 py-2 border">
@@ -689,12 +758,30 @@ function ExplorePage() {
           </div>
           {/* Scrollable Cards */}
           <div className="flex-1 overflow-y-auto">
-            {searchType === 'communities' ? (
+            {loading ? (
+              // Loading State
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading communities...</p>
+              </div>
+            ) : error ? (
+              // Error State
+              <div className="p-8 text-center">
+                <div className="text-red-500 text-4xl mb-4">⚠️</div>
+                <p className="text-red-600 mb-4">{error}</p>
+                <button 
+                  onClick={() => window.location.reload()}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+                >
+                  Try Again
+                </button>
+              </div>
+            ) : searchType === 'communities' ? (
               // Community Cards Display
               filteredCommunities.length > 0 ? (
                 <div className="p-2 sm:p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                    {paginatedCommunities.map((community) => (
+                    {paginatedCommunities.map((community: CommunityCard) => (
                     <div key={community.id} className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition-all duration-200">
                       {/* Community Image */}
                       <div className="w-full h-32 sm:h-32 bg-gray-200 overflow-hidden relative">

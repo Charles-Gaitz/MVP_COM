@@ -1,21 +1,177 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { ShoppingCart, Heart, Coffee, Utensils, MapPin, Star, Clock, Car, ChevronDown, ChevronUp } from 'lucide-react';
+
+interface AmenityPlace {
+  name: string;
+  type: string;
+  distance: string;
+  driveTime: string;
+  rating: number;
+  address: string;
+  hours?: string;
+  priceLevel?: string;
+  place_id?: string;
+}
+
+interface AmenitiesData {
+  grocery: AmenityPlace[];
+  healthcare: AmenityPlace[];
+  dining: AmenityPlace[];
+  entertainment: AmenityPlace[];
+}
 
 interface NearbyAmenitiesProps {
   communityId: string;
   communityName: string;
 }
 
-export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesProps) {
+export function NearbyAmenities({ communityId }: NearbyAmenitiesProps) {
+  const [amenitiesData, setAmenitiesData] = useState<AmenitiesData | null>(null);
+  const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  const getCommunityCoordinates = (id: string): { lat: number; lng: number } => {
+    const coordinates = {
+      westlake: { lat: 32.9933, lng: -97.2014 },
+      plano: { lat: 33.0198, lng: -96.6989 },
+      katy: { lat: 29.7866, lng: -95.8244 },
+      frisco: { lat: 33.1507, lng: -96.8236 },
+      allen: { lat: 33.1031, lng: -96.6706 },
+      mckinney: { lat: 33.1972, lng: -96.6397 },
+      prosper: { lat: 33.2362, lng: -96.8011 },
+      celina: { lat: 33.3248, lng: -96.7847 }
+    };
+    return coordinates[id as keyof typeof coordinates] || coordinates.westlake;
+  };
+
+  const fetchNearbyPlaces = async (lat: number, lng: number, type: string, keyword?: string): Promise<AmenityPlace[]> => {
+    const API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+    
+    try {
+      const radius = 8000; // 5 miles in meters
+      let url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&radius=${radius}&type=${type}&key=${API_KEY}`;
+      
+      if (keyword) {
+        url += `&keyword=${encodeURIComponent(keyword)}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status !== 'OK') {
+        throw new Error(`Google Places API error: ${data.status}`);
+      }
+
+      return data.results.slice(0, 3).map((place: any) => ({
+        name: place.name,
+        type: getPlaceType(place.types),
+        distance: calculateDistance(lat, lng, place.geometry.location.lat, place.geometry.location.lng),
+        driveTime: estimateDriveTime(calculateDistanceInMiles(lat, lng, place.geometry.location.lat, place.geometry.location.lng)),
+        rating: place.rating || 4.0,
+        address: place.vicinity || place.formatted_address || 'Address not available',
+        place_id: place.place_id,
+        priceLevel: getPriceLevel(place.price_level)
+      }));
+    } catch (error) {
+      console.error(`Error fetching ${type} places:`, error);
+      return [];
+    }
+  };
+
+  const getPlaceType = (types: string[]): string => {
+    const typeMap: { [key: string]: string } = {
+      'grocery_or_supermarket': 'Grocery Store',
+      'supermarket': 'Supermarket',
+      'hospital': 'Hospital',
+      'pharmacy': 'Pharmacy',
+      'doctor': 'Medical Center',
+      'restaurant': 'Restaurant',
+      'food': 'Restaurant',
+      'shopping_mall': 'Shopping Mall',
+      'movie_theater': 'Movie Theater',
+      'park': 'Park',
+      'gas_station': 'Gas Station'
+    };
+
+    for (const type of types) {
+      if (typeMap[type]) {
+        return typeMap[type];
+      }
+    }
+    
+    return types[0]?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Business';
+  };
+
+  const calculateDistanceInMiles = (lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+              Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
+  const calculateDistance = (lat1: number, lng1: number, lat2: number, lng2: number): string => {
+    const miles = calculateDistanceInMiles(lat1, lng1, lat2, lng2);
+    return `${miles.toFixed(1)} miles`;
+  };
+
+  const estimateDriveTime = (distanceInMiles: number): string => {
+    // Estimate drive time at average speed of 30 mph in urban areas
+    const timeInMinutes = Math.round((distanceInMiles / 30) * 60);
+    return `${timeInMinutes} min`;
+  };
+
+  const getPriceLevel = (priceLevel?: number): string => {
+    if (!priceLevel) return '';
+    const levels = ['', '$', '$$', '$$$', '$$$$'];
+    return levels[priceLevel] || '';
+  };
+
+  const fetchAllAmenities = async (): Promise<AmenitiesData> => {
+    const coords = getCommunityCoordinates(communityId);
+    
+    const [grocery, healthcare, dining, entertainment] = await Promise.all([
+      fetchNearbyPlaces(coords.lat, coords.lng, 'grocery_or_supermarket'),
+      fetchNearbyPlaces(coords.lat, coords.lng, 'hospital'),
+      fetchNearbyPlaces(coords.lat, coords.lng, 'restaurant'),
+      fetchNearbyPlaces(coords.lat, coords.lng, 'shopping_mall')
+    ]);
+
+    return {
+      grocery,
+      healthcare,
+      dining,
+      entertainment
+    };
+  };
+
+  useEffect(() => {
+    const loadAmenities = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchAllAmenities();
+        setAmenitiesData(data);
+      } catch (error) {
+        console.error('Failed to load amenities data:', error);
+        // Fall back to sample data
+        setAmenitiesData(getAmenitiesData(communityId));
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAmenities();
+  }, [communityId]);
 
   const toggleSection = () => {
     setIsExpanded(!isExpanded);
   };
 
-  // Sample amenities data - in a real app, this would come from Google Places API or similar
-  const getAmenitiesData = (id: string) => {
+  // Sample amenities data fallback
+  const getAmenitiesData = (id: string): AmenitiesData => {
     const amenitiesData = {
       westlake: {
         grocery: [
@@ -88,7 +244,18 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
     return amenitiesData[id as keyof typeof amenitiesData] || amenitiesData.westlake;
   };
 
-  const amenities = getAmenitiesData(communityId);
+  const amenities = amenitiesData || getAmenitiesData(communityId);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded mb-4"></div>
+          <div className="h-32 bg-gray-200 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -148,7 +315,7 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
                   Nearby Amenities & Services
                 </h2>
                 <p className="text-gray-600 text-sm mt-1">
-                  Essential services and entertainment within easy reach of {communityName}
+                  Essential services and entertainment within easy reach
                 </p>
               </div>
             </div>
@@ -158,12 +325,9 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
               <ChevronDown className="h-5 w-5 text-gray-600 ml-4" />
             )}
           </button>
-          <Link 
-            to={`/reports?community=${communityId}&section=amenities`}
-            className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6"
-          >
+          <div className="text-blue-900 hover:text-blue-800 font-medium text-sm transition-colors duration-200 ml-4 mr-6">
             View All on Map
-          </Link>
+          </div>
         </div>
       </div>
 
