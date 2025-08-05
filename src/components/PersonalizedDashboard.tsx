@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   User, 
@@ -42,9 +42,9 @@ export function PersonalizedDashboard({
     if (isAuthenticated && user) {
       generatePersonalizedInsights();
     }
-  }, [user, isAuthenticated]);
+  }, [user, isAuthenticated, generatePersonalizedInsights]);
 
-  const generatePersonalizedInsights = () => {
+  const generatePersonalizedInsights = useCallback(() => {
     if (!user) return;
 
     const favorites = getFavorites();
@@ -130,7 +130,7 @@ export function PersonalizedDashboard({
     }
 
     setInsights(newInsights.slice(0, variant === 'compact' ? 3 : 6));
-  };
+  }, [user, getFavorites, variant]);
 
   const getMostSearchedCity = (searches: any[]): string | null => {
     const cityCount: { [key: string]: number } = {};

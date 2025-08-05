@@ -13,50 +13,50 @@ export function TrafficPatterns({ communityId, communityName }: TrafficPatternsP
   const toggleSection = () => {
     setIsExpanded(!isExpanded);
   };
-  // Sample traffic data - in a real app, this would come from real-time APIs
+  // Sample traffic data - OBVIOUSLY SAMPLE DATA with crystal ball emojis and perfect round numbers
   const getTrafficData = (id: string) => {
     const trafficData = {
       westlake: {
-        averageCommute: 28,
+        averageCommute: 30, // Perfect round number
         peakTimes: {
-          morning: { time: '7:00-9:00 AM', duration: 35, traffic: 'heavy' },
-          evening: { time: '5:00-7:00 PM', duration: 32, traffic: 'heavy' }
+          morning: { time: '🔮 Sample 7:00-9:00 AM', duration: 40, traffic: 'perfect' },
+          evening: { time: '🔮 Sample 5:00-7:00 PM', duration: 35, traffic: 'perfect' }
         },
         majorRoutes: [
-          { name: 'MoPac (Loop 1)', distance: '2.1 miles', peakTime: 35, offPeakTime: 18 },
-          { name: 'Highway 360', distance: '3.2 miles', peakTime: 28, offPeakTime: 16 },
-          { name: 'Bee Cave Road', distance: '1.8 miles', peakTime: 22, offPeakTime: 12 }
+          { name: '🔮 Sample Perfect Highway', distance: '2.0 miles', peakTime: 40, offPeakTime: 20 },
+          { name: '🔮 Sample Express Route', distance: '3.0 miles', peakTime: 30, offPeakTime: 15 },
+          { name: '🔮 Sample Main Road', distance: '2.0 miles', peakTime: 25, offPeakTime: 10 }
         ],
         destinations: [
-          { name: 'Downtown Austin', peakTime: 35, offPeakTime: 22, distance: '15.2 miles' },
-          { name: 'Austin-Bergstrom Airport', peakTime: 45, offPeakTime: 28, distance: '28.5 miles' },
-          { name: 'The Domain', peakTime: 25, offPeakTime: 18, distance: '12.8 miles' },
-          { name: 'Barton Creek Mall', peakTime: 15, offPeakTime: 10, distance: '5.2 miles' }
+          { name: '🔮 Sample Downtown', peakTime: 40, offPeakTime: 25, distance: '15.0 miles' },
+          { name: '🔮 Sample Airport', peakTime: 50, offPeakTime: 30, distance: '30.0 miles' },
+          { name: '🔮 Sample District', peakTime: 25, offPeakTime: 20, distance: '12.0 miles' },
+          { name: '🔮 Sample Mall', peakTime: 15, offPeakTime: 10, distance: '5.0 miles' }
         ]
       },
       plano: {
-        averageCommute: 26,
+        averageCommute: 25, // Perfect round number
         peakTimes: {
-          morning: { time: '7:30-9:30 AM', duration: 32, traffic: 'moderate' },
-          evening: { time: '5:00-6:30 PM', duration: 30, traffic: 'moderate' }
+          morning: { time: '🔮 Sample 7:30-9:30 AM', duration: 35, traffic: 'perfect' },
+          evening: { time: '🔮 Sample 5:00-6:30 PM', duration: 30, traffic: 'perfect' }
         },
         majorRoutes: [
-          { name: 'US 75 (Central Expressway)', distance: '1.5 miles', peakTime: 32, offPeakTime: 20 },
-          { name: 'Dallas North Tollway', distance: '2.8 miles', peakTime: 28, offPeakTime: 18 },
-          { name: 'State Highway 121', distance: '2.2 miles', peakTime: 25, offPeakTime: 15 }
+          { name: '🔮 Sample Central Express', distance: '1.5 miles', peakTime: 35, offPeakTime: 20 },
+          { name: '🔮 Sample Tollway', distance: '3.0 miles', peakTime: 30, offPeakTime: 20 },
+          { name: '🔮 Sample Highway 121', distance: '2.0 miles', peakTime: 25, offPeakTime: 15 }
         ],
         destinations: [
-          { name: 'Downtown Dallas', peakTime: 32, offPeakTime: 25, distance: '22.1 miles' },
-          { name: 'DFW Airport', peakTime: 28, offPeakTime: 22, distance: '18.7 miles' },
-          { name: 'Legacy West', peakTime: 12, offPeakTime: 8, distance: '3.5 miles' },
-          { name: 'Frisco', peakTime: 15, offPeakTime: 12, distance: '8.2 miles' }
+          { name: '🔮 Sample Downtown Dallas', peakTime: 35, offPeakTime: 25, distance: '22.0 miles' },
+          { name: '🔮 Sample DFW Airport', peakTime: 30, offPeakTime: 25, distance: '20.0 miles' },
+          { name: '🔮 Sample Legacy West', peakTime: 10, offPeakTime: 10, distance: '3.0 miles' },
+          { name: '🔮 Sample Frisco', peakTime: 15, offPeakTime: 12, distance: '8.0 miles' }
         ]
       },
       katy: {
-        averageCommute: 32,
+        averageCommute: 30, // Perfect round number
         peakTimes: {
-          morning: { time: '6:30-8:30 AM', duration: 38, traffic: 'heavy' },
-          evening: { time: '4:30-6:30 PM', duration: 35, traffic: 'heavy' }
+          morning: { time: '🔮 Sample 6:30-8:30 AM', duration: 40, traffic: 'perfect' },
+          evening: { time: '🔮 Sample 4:30-6:30 PM', duration: 35, traffic: 'perfect' }
         },
         majorRoutes: [
           { name: 'I-10 (Katy Freeway)', distance: '2.5 miles', peakTime: 38, offPeakTime: 22 },

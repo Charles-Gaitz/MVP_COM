@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { MapPin, Home, Users, DollarSign, GraduationCap, Star } from 'lucide-react';
+import { MapPin, Home, Users } from 'lucide-react';
 import { Neighborhood } from '../data/neighborhoods';
 
 interface NeighborhoodCardProps {

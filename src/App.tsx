@@ -2,10 +2,18 @@ import { Link } from 'react-router-dom';
 import { MapPin, ArrowRight, Search, Users, TrendingUp, Heart, Shield, Star } from 'lucide-react';
 import LocalNewsSection from './components/LocalNewsSection';
 import PersonalRecommendations from './components/PersonalRecommendations';
+import { DemoDisclaimer } from './components/DemoDisclaimers';
 
 function App() {
   return (
     <div className="min-h-screen bg-white">
+      {/* Demo Banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+          <DemoDisclaimer type="banner" className="border-0 p-0 mb-0" />
+        </div>
+      </div>
+
       {/* Navigation */}
       <nav className="relative z-10 bg-white/95 backdrop-blur-sm border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

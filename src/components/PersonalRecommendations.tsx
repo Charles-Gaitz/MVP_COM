@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, TrendingUp, Star, MapPin, ArrowRight, Filter } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
@@ -39,9 +39,9 @@ export function PersonalRecommendations({
 
   useEffect(() => {
     generatePersonalizedRecommendations();
-  }, [user, isAuthenticated]);
+  }, [user, isAuthenticated, generatePersonalizedRecommendations]);
 
-  const generatePersonalizedRecommendations = () => {
+  const generatePersonalizedRecommendations = useCallback(() => {
     setLoading(true);
     
     // Simulated recommendation algorithm
@@ -57,13 +57,13 @@ export function PersonalRecommendations({
       }
       setLoading(false);
     }, 800);
-  };
+  }, [user, isAuthenticated, maxRecommendations, getFavorites]);
 
   const getPersonalizedRecommendations = (): CommunityRecommendation[] => {
     if (!user) return [];
 
     const favorites = getFavorites();
-    const { preferences, searchHistory, savedCommunities } = user;
+    const { preferences, searchHistory } = user;
     
     // Sample communities data (in real app, this would come from API)
     const allCommunities = [

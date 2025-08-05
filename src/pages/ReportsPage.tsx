@@ -9,6 +9,7 @@ import { NearbyAmenities } from '../components/NearbyAmenities';
 import { EmploymentData } from '../components/EmploymentData';
 import { ClimateWeather } from '../components/ClimateWeather';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
+import { DemoDisclaimer } from '../components/DemoDisclaimers';
 import { sampleCommunities as allCommunities, type CommunityDetailed } from '../data/communities';
 
 const sampleCommunities = allCommunities;
@@ -127,6 +128,12 @@ function ReportsPage() {
         </div>
       </nav>
 
+      {/* Demo Disclaimer Banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <DemoDisclaimer type="banner" className="border-0 p-0 mb-0" />
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

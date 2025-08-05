@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { User, Settings, Heart, Search, FileText, Bell, Mail, Smartphone, Download, Edit, Save, X } from 'lucide-react';
+import { User, Settings, Search, FileText, Bell, Smartphone, Download, Edit, Save, X } from 'lucide-react';
 import { useUser } from '../contexts/UserContext';
 
 interface UserProfile {

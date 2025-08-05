@@ -6,7 +6,7 @@ interface MarketTrendsProps {
   communityName?: string;
 }
 
-export function MarketTrends({ communityId = '', communityName = 'Community' }: MarketTrendsProps) {
+export function MarketTrends({ communityName = 'Community' }: MarketTrendsProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const toggleSection = () => {

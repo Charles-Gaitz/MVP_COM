@@ -1,7 +1,40 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { GraduationCap, MapPin, Users, Star, Award, BookOpen, Calendar, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
-import { CensusService, type EducationData } from '../services/CensusService';
+
+// Local Education Data type definition
+interface School {
+  name: string;
+  type: 'elementary' | 'middle' | 'high';
+  rating: string;
+  score: number;
+  enrollment: number;
+  distance: string;
+  programs: string[];
+  testScores: { reading: number; math: number };
+}
+
+interface EducationData {
+  district: string;
+  districtRating: string;
+  graduationRate: number;
+  collegeReadinessRate: number;
+  studentTeacherRatio: number;
+  totalStudents: number;
+  schoolsCount: number;
+  averageTestScores: {
+    reading: number;
+    math: number;
+    science: number;
+  };
+  educationalAttainment: {
+    highSchoolOrHigher: number;
+    bachelorsOrHigher: number;
+    graduateOrProfessional: number;
+  };
+  schools: School[];
+  lastUpdated: string;
+}
 
 interface SchoolDistrictDetailsProps {
   communityId: string;
@@ -21,15 +54,10 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
         setLoading(true);
         setError(null);
         
-        const data = await CensusService.getEducationData(communityId);
-        
-        if (data) {
-          setEducationData(data);
-        } else {
-          setError('Education data temporarily unavailable');
-          // Fallback to sample data for demo
-          setEducationData(getFallbackEducationData(communityId));
-        }
+        // For now, use fallback data until we implement the actual API call
+        // TODO: Implement CensusService.getEducationData method
+        setError('Education data temporarily unavailable');
+        setEducationData(getFallbackEducationData(communityId));
       } catch (err) {
         console.error('Error fetching education data:', err);
         setError('Error loading education data');
@@ -43,161 +71,161 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
     fetchEducationData();
   }, [communityId]);
 
-  // Fallback education data for demo purposes
+  // Fallback education data for demo purposes - OBVIOUSLY SAMPLE DATA
   const getFallbackEducationData = (id: string): EducationData => {
     const fallbackData = {
       westlake: {
-        district: 'Eanes Independent School District',
-        districtRating: 'A+',
-        graduationRate: 99.2,
-        collegeReadinessRate: 94.5,
-        studentTeacherRatio: 15.1,
-        totalStudents: 8250,
-        schoolsCount: 12,
+        district: '🔮 Sample Perfect School District',
+        districtRating: 'A+++', // Obviously fake rating
+        graduationRate: 100.0, // Perfect round number
+        collegeReadinessRate: 100.0, // Perfect round number
+        studentTeacherRatio: 10.0, // Perfect round number
+        totalStudents: 10000, // Perfect round number
+        schoolsCount: 20, // Perfect round number
         averageTestScores: {
-          reading: 92,
-          math: 94,
-          science: 91
+          reading: 100, // Perfect scores
+          math: 100,
+          science: 100
         },
         educationalAttainment: {
-          highSchoolOrHigher: 98.5,
-          bachelorsOrHigher: 84.2,
-          graduateOrProfessional: 42.1
+          highSchoolOrHigher: 100.0, // Perfect round numbers
+          bachelorsOrHigher: 100.0,
+          graduateOrProfessional: 80.0
         },
         schools: [
           {
-            name: 'Forest Trail Elementary',
+            name: '🔮 Sample Perfect Elementary',
             type: 'elementary' as const,
-            rating: 'A+',
-            score: 95,
-            enrollment: 485,
-            distance: '0.8 miles',
-            programs: ['STEM', 'Dual Language', 'Gifted & Talented'],
-            testScores: { reading: 92, math: 94 }
+            rating: 'A+++', // Obviously fake rating
+            score: 100, // Perfect score
+            enrollment: 500, // Round number
+            distance: '1.0 miles', // Round number
+            programs: ['🔮 Sample STEM', '🔮 Sample Dual Language', '🔮 Sample Gifted'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Hill Country Middle School',
+            name: '🔮 Sample Amazing Middle School',
             type: 'middle' as const,
-            rating: 'A',
-            score: 88,
-            enrollment: 725,
-            distance: '1.2 miles',
-            programs: ['Advanced Math', 'Band', 'Athletics'],
-            testScores: { reading: 85, math: 87 }
+            rating: 'A+++',
+            score: 100,
+            enrollment: 750, // Round number
+            distance: '1.5 miles',
+            programs: ['🔮 Sample Advanced Math', '🔮 Sample Band', '🔮 Sample Athletics'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Westlake High School',
+            name: '🔮 Sample Incredible High School',
             type: 'high' as const,
-            rating: 'A+',
-            score: 96,
-            enrollment: 2850,
-            distance: '2.1 miles',
-            programs: ['AP Courses', 'IB Program', 'Arts Academy', 'Athletics'],
-            testScores: { reading: 94, math: 95 }
+            rating: 'A+++',
+            score: 100,
+            enrollment: 3000, // Round number
+            distance: '2.0 miles',
+            programs: ['🔮 Sample AP Courses', '🔮 Sample IB Program', '🔮 Sample Arts Academy'],
+            testScores: { reading: 100, math: 100 }
           }
         ],
         lastUpdated: new Date().toISOString()
       },
       plano: {
-        district: 'Plano Independent School District',
-        districtRating: 'A+',
-        graduationRate: 97.8,
-        collegeReadinessRate: 91.2,
-        studentTeacherRatio: 16.3,
-        totalStudents: 54500,
-        schoolsCount: 75,
+        district: '🔮 Sample Plano Super District',
+        districtRating: 'A+++',
+        graduationRate: 100.0,
+        collegeReadinessRate: 100.0,
+        studentTeacherRatio: 10.0,
+        totalStudents: 60000,
+        schoolsCount: 100,
         averageTestScores: {
-          reading: 90,
-          math: 92,
-          science: 89
+          reading: 100,
+          math: 100,
+          science: 100
         },
         educationalAttainment: {
-          highSchoolOrHigher: 96.8,
-          bachelorsOrHigher: 72.4,
-          graduateOrProfessional: 31.5
+          highSchoolOrHigher: 100.0,
+          bachelorsOrHigher: 90.0,
+          graduateOrProfessional: 70.0
         },
         schools: [
           {
-            name: 'Carpenter Elementary',
+            name: '🔮 Sample Plano Elementary',
             type: 'elementary' as const,
-            rating: 'A+',
-            score: 92,
-            enrollment: 525,
+            rating: 'A+++',
+            score: 100,
+            enrollment: 600, // Round number
             distance: '0.5 miles',
-            programs: ['STEM', 'Fine Arts', 'ESL Support'],
-            testScores: { reading: 90, math: 92 }
+            programs: ['🔮 Sample STEM', '🔮 Sample Fine Arts', '🔮 Sample ESL'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Clark Middle School',
+            name: '🔮 Sample Plano Middle School',
             type: 'middle' as const,
-            rating: 'A',
-            score: 86,
-            enrollment: 825,
+            rating: 'A+++',
+            score: 100,
+            enrollment: 900, // Round number
             distance: '1.0 miles',
-            programs: ['Pre-AP', 'Orchestra', 'Robotics'],
-            testScores: { reading: 84, math: 86 }
+            programs: ['🔮 Sample Pre-AP', '🔮 Sample Orchestra', '🔮 Sample Robotics'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Plano Senior High School',
+            name: '🔮 Sample Plano High School',
             type: 'high' as const,
-            rating: 'A+',
-            score: 94,
-            enrollment: 3200,
-            distance: '1.8 miles',
-            programs: ['AP Courses', 'Career Tech', 'Fine Arts', 'Athletics'],
-            testScores: { reading: 92, math: 93 }
+            rating: 'A+++',
+            score: 100,
+            enrollment: 3500, // Round number
+            distance: '2.0 miles',
+            programs: ['🔮 Sample AP Courses', '🔮 Sample Career Tech', '🔮 Sample Fine Arts'],
+            testScores: { reading: 100, math: 100 }
           }
         ],
         lastUpdated: new Date().toISOString()
       },
       katy: {
-        district: 'Katy Independent School District',
-        districtRating: 'A',
-        graduationRate: 96.1,
-        collegeReadinessRate: 87.3,
-        studentTeacherRatio: 17.2,
-        totalStudents: 86500,
-        schoolsCount: 98,
+        district: '🔮 Sample Katy Super District',
+        districtRating: 'A+++',
+        graduationRate: 100.0,
+        collegeReadinessRate: 100.0,
+        studentTeacherRatio: 10.0,
+        totalStudents: 90000, // Round number
+        schoolsCount: 100, // Round number
         averageTestScores: {
-          reading: 86,
-          math: 88,
-          science: 85
+          reading: 100,
+          math: 100,
+          science: 100
         },
         educationalAttainment: {
-          highSchoolOrHigher: 94.3,
-          bachelorsOrHigher: 65.7,
-          graduateOrProfessional: 28.9
+          highSchoolOrHigher: 100.0,
+          bachelorsOrHigher: 85.0,
+          graduateOrProfessional: 65.0
         },
         schools: [
           {
-            name: 'Katy Elementary',
+            name: '🔮 Sample Katy Elementary',
             type: 'elementary' as const,
-            rating: 'A',
-            score: 88,
-            enrollment: 445,
-            distance: '0.6 miles',
-            programs: ['Dual Language', 'Technology', 'Music'],
-            testScores: { reading: 86, math: 88 }
+            rating: 'A+++',
+            score: 100,
+            enrollment: 500, // Round number
+            distance: '0.5 miles',
+            programs: ['🔮 Sample Dual Language', '🔮 Sample Technology', '🔮 Sample Music'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Katy Junior High',
+            name: '🔮 Sample Katy Middle School',
             type: 'middle' as const,
-            rating: 'A',
-            score: 84,
-            enrollment: 675,
-            distance: '1.1 miles',
-            programs: ['Pre-AP', 'Band', 'Athletics'],
-            testScores: { reading: 82, math: 84 }
+            rating: 'A+++',
+            score: 100,
+            enrollment: 750, // Round number
+            distance: '1.0 miles',
+            programs: ['🔮 Sample Pre-AP', '🔮 Sample Band', '🔮 Sample Athletics'],
+            testScores: { reading: 100, math: 100 }
           },
           {
-            name: 'Katy High School',
+            name: '🔮 Sample Katy High School',
             type: 'high' as const,
-            rating: 'A+',
-            score: 91,
-            enrollment: 2650,
+            rating: 'A+++',
+            score: 100,
+            enrollment: 3000, // Round number
             distance: '2.0 miles',
-            programs: ['AP Courses', 'CTE Programs', 'Fine Arts'],
-            testScores: { reading: 89, math: 91 }
+            programs: ['🔮 Sample AP Courses', '🔮 Sample CTE Programs', '🔮 Sample Fine Arts'],
+            testScores: { reading: 100, math: 100 }
           }
         ],
         lastUpdated: new Date().toISOString()
@@ -284,6 +312,25 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
 
       {isExpanded && (
         <div className="p-6">
+          {/* Sample Data Warning Banner */}
+          {error && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-lg">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-amber-800">
+                    <strong>🔮 SAMPLE DATA DISPLAYED</strong> - Education API temporarily unavailable. 
+                    This is obviously fake demonstration data with perfect scores and crystal ball emojis.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* District-wide Statistics */}
           <div className="mb-6">
             <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -291,31 +338,31 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
               District Performance Metrics
             </h3>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-green-50 rounded-lg p-4">
+              <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-green-50'}`}>
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">Graduation Rate</h4>
                   <Star className="w-4 h-4 text-green-500" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{currentEducationData.graduationRate}%</p>
-                <p className="text-sm text-gray-600 mt-1">vs. State avg: 90%</p>
+                <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample vs. State avg: 90%' : 'vs. State avg: 90%'}</p>
               </div>
 
-              <div className="bg-blue-50 rounded-lg p-4">
+              <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-blue-50'}`}>
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">College Readiness</h4>
                   <BookOpen className="w-4 h-4 text-blue-500" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{currentEducationData.collegeReadinessRate}%</p>
-                <p className="text-sm text-gray-600 mt-1">College ready graduates</p>
+                <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample' : 'College ready'} graduates</p>
               </div>
 
-              <div className="bg-purple-50 rounded-lg p-4">
+              <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-purple-50'}`}>
                 <div className="flex items-start justify-between mb-2">
                   <h4 className="text-sm font-medium text-gray-600">Student-Teacher Ratio</h4>
                   <Users className="w-4 h-4 text-purple-500" />
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{currentEducationData.studentTeacherRatio}:1</p>
-                <p className="text-sm text-gray-600 mt-1">vs. State avg: 18:1</p>
+                <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample vs. State avg: 18:1' : 'vs. State avg: 18:1'}</p>
               </div>
 
               <div className="bg-orange-50 rounded-lg p-4">
@@ -410,7 +457,7 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
               <GraduationCap className="w-5 h-5 text-blue-600 mr-2" />
               Local Schools
             </h3>
-            {currentEducationData.schools.map((school, index) => (
+            {currentEducationData.schools.map((school: School, index: number) => (
               <div key={index} className="border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-start space-x-3">
@@ -475,7 +522,7 @@ export function SchoolDistrictDetails({ communityId, communityName }: SchoolDist
                     <span className="text-sm font-medium text-gray-700">Special Programs</span>
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {school.programs.map((program, programIndex) => (
+                    {school.programs.map((program: string, programIndex: number) => (
                       <span
                         key={programIndex}
                         className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-800 text-xs font-medium rounded-full"

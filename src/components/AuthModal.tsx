@@ -61,7 +61,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           setError('Invalid credentials. Please try again.');
         }
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);

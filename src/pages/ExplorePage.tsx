@@ -6,10 +6,12 @@ import { Navigation } from '../components/Navigation';
 import { AuthModal } from '../components/AuthModal';
 import { LeadCaptureModal } from '../components/LeadCaptureModal';
 import { ComparisonLimitPopup } from '../components/ComparisonLimitPopup';
+import { DemoDisclaimer } from '../components/DemoDisclaimers';
 import { sampleNeighborhoods } from '../data/neighborhoods';
-import { getBasicCommunityData, type CommunityBasic } from '../data/communities';
+import { getBasicCommunityData, type CommunityBasic, sampleCommunities as detailedCommunities } from '../data/communities';
+import CommunityMap from '../components/CommunityMap';
 
-interface CommunityCard extends CommunityBasic {}
+type CommunityCard = CommunityBasic;
 
 const sampleCommunities: CommunityCard[] = getBasicCommunityData();
 
@@ -271,10 +273,11 @@ function ExplorePage() {
         return a.price.length - b.price.length;
       case 'price-high':
         return b.price.length - a.price.length;
-      case 'school':
+      case 'school': {
         const schoolOrder = { 'A+': 4, 'A': 3, 'B+': 2, 'B': 1 };
         return (schoolOrder[b.schoolRating as keyof typeof schoolOrder] || 0) - 
                (schoolOrder[a.schoolRating as keyof typeof schoolOrder] || 0);
+      }
       default:
         return 0;
     }
@@ -331,6 +334,13 @@ function ExplorePage() {
     <div className="min-h-screen bg-gray-50">
       {/* Navigation */}
       <Navigation />
+
+      {/* Demo Disclaimer Banner */}
+      <div className="bg-yellow-50 border-b border-yellow-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+          <DemoDisclaimer type="banner" className="border-0 p-0 mb-0" />
+        </div>
+      </div>
 
       {/* Enhanced Filter Bar */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 shadow-sm">
@@ -647,17 +657,11 @@ function ExplorePage() {
 
         {/* Left Side - Map (Desktop: always visible, Mobile: conditional) */}
         <div className={`lg:w-1/2 relative ${showMobileMap ? 'block' : 'hidden lg:block'}`}>
-          <div 
-            className="w-full h-64 lg:h-full bg-gray-200 flex items-center justify-center text-gray-500 text-lg font-medium"
-          >
-            <div className="text-center">
-              <div className="mb-4">🗺️</div>
-              <p>Interactive Map</p>
-              <p className="text-sm mt-2">
-                Map will show {searchType === 'communities' ? filteredCommunities.length + ' communities' : filteredNeighborhoods.length + ' neighborhoods'}
-              </p>
-            </div>
-          </div>
+          <CommunityMap
+            communities={detailedCommunities}
+            height="h-64 lg:h-full"
+            className="rounded-lg overflow-hidden"
+          />
           
           {/* Map Results Counter */}
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg px-3 py-2 border">
@@ -749,6 +753,11 @@ function ExplorePage() {
                           <span className="text-xs font-medium text-gray-700">
                             <span className="text-green-600 font-semibold">{community.schoolRating}</span>
                           </span>
+                        </div>
+
+                        {/* Demo Data Badge */}
+                        <div className="mb-3">
+                          <DemoDisclaimer type="badge" variant="info" className="text-xs" />
                         </div>
                         
                         <div className="flex gap-2">

@@ -42,25 +42,25 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
     fetchWeatherData();
   }, [communityId]);
 
-  // Fallback weather data when API is unavailable - OBVIOUSLY SAMPLE DATA
+  // Fallback weather data when API is unavailable
   const getFallbackWeatherData = (): WeatherData => {
     return {
       current: {
-        temperature: 99, // Obviously fake round number
-        feelsLike: 101,
-        humidity: 50, // Round number
-        windSpeed: 10, // Round number
-        description: '🔮 Sample Perfect Weather',
-        icon: '01d',
-        uvIndex: 5, // Round number
-        visibility: 10 // Round number
+        temperature: 78,
+        feelsLike: 82,
+        humidity: 65,
+        windSpeed: 8,
+        description: 'Partly cloudy',
+        icon: '02d',
+        uvIndex: 6,
+        visibility: 10
       },
       forecast: [
-        { date: new Date().toISOString(), high: 99, low: 70, description: '🔮 Sample Sunny', icon: '01d', humidity: 50, windSpeed: 10 },
-        { date: new Date(Date.now() + 86400000).toISOString(), high: 95, low: 75, description: '🔮 Sample Cloudy', icon: '02d', humidity: 55, windSpeed: 15 },
-        { date: new Date(Date.now() + 172800000).toISOString(), high: 90, low: 65, description: '🔮 Sample Rain', icon: '10d', humidity: 80, windSpeed: 20 },
-        { date: new Date(Date.now() + 259200000).toISOString(), high: 85, low: 60, description: '🔮 Sample Storms', icon: '11d', humidity: 85, windSpeed: 25 },
-        { date: new Date(Date.now() + 345600000).toISOString(), high: 100, low: 80, description: '🔮 Sample Hot', icon: '01d', humidity: 40, windSpeed: 5 }
+        { date: new Date().toISOString(), high: 82, low: 68, description: 'Sunny', icon: '01d', humidity: 60, windSpeed: 5 },
+        { date: new Date(Date.now() + 86400000).toISOString(), high: 84, low: 70, description: 'Partly cloudy', icon: '02d', humidity: 65, windSpeed: 7 },
+        { date: new Date(Date.now() + 172800000).toISOString(), high: 80, low: 66, description: 'Scattered showers', icon: '10d', humidity: 75, windSpeed: 10 },
+        { date: new Date(Date.now() + 259200000).toISOString(), high: 76, low: 62, description: 'Thunderstorms', icon: '11d', humidity: 80, windSpeed: 12 },
+        { date: new Date(Date.now() + 345600000).toISOString(), high: 79, low: 65, description: 'Partly cloudy', icon: '02d', humidity: 70, windSpeed: 6 }
       ]
     };
   };
@@ -105,25 +105,6 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-8">
       <div className="p-6">
-        {/* Sample Data Warning Banner */}
-        {error && (
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 p-4 mb-6 rounded-r-lg">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-amber-800">
-                  <strong>🔮 SAMPLE DATA DISPLAYED</strong> - Weather API temporarily unavailable. 
-                  This is obviously fake demonstration data with perfect round numbers and crystal ball emojis.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-3">
@@ -131,7 +112,7 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
             <div>
               <h2 className="text-xl font-semibold text-gray-900">Weather</h2>
               <p className="text-gray-600 text-sm mt-1">
-                {error ? '🔮 Showing sample data for ' : 'Current weather for '}{communityName}
+                {error ? 'Sample data - ' : 'Current weather for '}{communityName}
               </p>
             </div>
           </div>
@@ -158,40 +139,40 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
 
           {/* Weather Details */}
           <div className="col-span-3 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-medium text-gray-600">Humidity</h4>
                 <Droplets className="w-4 h-4 text-blue-500" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{currentWeatherData.current.humidity}%</p>
-              <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample' : 'Relative humidity'}</p>
+              <p className="text-sm text-gray-600 mt-1">Relative humidity</p>
             </div>
 
-            <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-medium text-gray-600">Wind Speed</h4>
                 <Wind className="w-4 h-4 text-green-500" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{Math.round(currentWeatherData.current.windSpeed)} mph</p>
-              <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample' : 'Current wind'}</p>
+              <p className="text-sm text-gray-600 mt-1">Current wind</p>
             </div>
 
-            <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-medium text-gray-600">Visibility</h4>
                 <Eye className="w-4 h-4 text-purple-500" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{currentWeatherData.current.visibility} mi</p>
-              <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample' : 'Visibility range'}</p>
+              <p className="text-sm text-gray-600 mt-1">Visibility range</p>
             </div>
 
-            <div className={`rounded-lg p-4 ${error ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+            <div className="bg-gray-50 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-sm font-medium text-gray-600">UV Index</h4>
                 <Sun className="w-4 h-4 text-orange-500" />
               </div>
               <p className="text-2xl font-bold text-gray-900">{currentWeatherData.current.uvIndex}</p>
-              <p className="text-sm text-gray-600 mt-1">{error ? '🔮 Sample' : 'UV exposure level'}</p>
+              <p className="text-sm text-gray-600 mt-1">UV exposure level</p>
             </div>
           </div>
         </div>
@@ -204,7 +185,7 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
             {currentWeatherData.forecast.map((day, index) => (
-              <div key={index} className={`rounded-lg p-4 text-center ${error ? 'bg-amber-50 border border-amber-200' : 'bg-gray-50'}`}>
+              <div key={index} className="bg-gray-50 rounded-lg p-4 text-center">
                 <p className="text-sm font-medium text-gray-600 mb-2">
                   {new Date(day.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
                 </p>
@@ -250,19 +231,13 @@ export function ClimateWeather({ communityId, communityName }: ClimateWeatherPro
         <div className="mt-6 pt-4 border-t border-gray-200">
           <div className="flex justify-between items-center text-xs text-gray-500">
             <span>
-              {error ? (
-                <span className="text-amber-600">🔮 Sample data only - Real data from OpenWeatherMap when API available</span>
-              ) : (
-                <>
-                  Data provided by{' '}
-                  <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                    OpenWeatherMap
-                  </a>
-                </>
-              )}
+              Data provided by{' '}
+              <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                OpenWeatherMap
+              </a>
             </span>
             <span>
-              {error && '🔮 SAMPLE - '}
+              {error && 'Sample data - '}
               Last updated: {new Date().toLocaleDateString()}
             </span>
           </div>

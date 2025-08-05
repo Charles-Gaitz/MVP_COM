@@ -214,19 +214,39 @@ export function Navigation() {
           {/* Mobile Navigation */}
           <div className="md:hidden border-t border-gray-100 py-2">
             <div className="flex justify-between items-center">
-              {navigationLinks.map((link) => (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`px-3 py-2 text-sm font-medium transition-colors duration-200 ${
-                    location.pathname === link.to
-                      ? 'text-blue-900'
-                      : 'text-gray-700 hover:text-blue-900'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navigationLinks.map((link) => {
+                // Special handling for Compare tab on mobile
+                if (link.to === '/reports') {
+                  return (
+                    <Link
+                      key={link.to}
+                      to={link.to}
+                      className={getCompareNavClassName()}
+                    >
+                      <span>{link.label}</span>
+                      {selectedCommunities.length > 0 && (
+                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center min-w-[20px]">
+                          {selectedCommunities.length}
+                        </div>
+                      )}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className={`px-4 py-3 text-sm font-medium transition-colors duration-200 rounded-lg ${
+                      location.pathname === link.to
+                        ? 'text-blue-900 bg-blue-50'
+                        : 'text-gray-700 hover:text-blue-900 hover:bg-gray-50'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </div>

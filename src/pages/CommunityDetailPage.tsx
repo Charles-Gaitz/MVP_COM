@@ -8,6 +8,8 @@ import { MarketTrends } from '../components/MarketTrends';
 import { SchoolDistrictDetails } from '../components/SchoolDistrictDetails';
 import { TrafficPatterns } from '../components/TrafficPatterns';
 import { NearbyAmenities } from '../components/NearbyAmenities';
+import { sampleCommunities } from '../data/communities';
+import CommunityMap from '../components/CommunityMap';
 import { EmploymentData } from '../components/EmploymentData';
 import { ClimateWeather } from '../components/ClimateWeather';
 import { PhotoGalleries } from '../components/PhotoGalleries';
@@ -57,7 +59,7 @@ function CommunityDetailPage() {
         amenities: ['Schools', 'Parks', 'Shopping', 'Healthcare', 'Recreation']
       });
     }
-  }, [id]); // Simplified dependency array
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const toggleFavorite = (communityId: string) => {
     const newFavorites = favorites.includes(communityId)
@@ -284,49 +286,41 @@ function CommunityDetailPage() {
           
           {/* Map Container */}
           <div className="relative">
-            <div 
-              className="w-full h-[400px] bg-gray-100 flex items-center justify-center text-gray-500 relative"
-              style={{ minHeight: '400px' }}
-            >
-              {/* Placeholder for actual map integration */}
-              <div className="text-center">
-                <MapPin className="h-12 w-12 text-blue-900 mx-auto mb-3" />
-                <p className="text-lg font-medium text-gray-700 mb-2">Interactive Map Loading...</p>
-                <p className="text-sm text-gray-500 max-w-md">
-                  This will show {communityData.name} location, nearby schools, shopping centers, 
-                  parks, and other community amenities using Google Maps or Mapbox.
-                </p>
-              </div>
+            <CommunityMap
+              communities={sampleCommunities}
+              selectedCommunityId={id || ''}
+              height="h-[400px]"
+              className="w-full"
+            />
               
-              {/* Map Controls Overlay (for when real map is integrated) */}
-              <div className="absolute top-4 left-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
-                <div className="space-y-2">
-                  <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
-                    <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
-                    <span>Schools</span>
-                  </button>
-                  <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
-                    <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                    <span>Parks</span>
-                  </button>
-                  <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
-                    <span className="w-3 h-3 bg-orange-500 rounded-full"></span>
-                    <span>Shopping</span>
-                  </button>
-                  <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
-                    <span className="w-3 h-3 bg-red-500 rounded-full"></span>
-                    <span>Healthcare</span>
-                  </button>
-                </div>
+            {/* Map Controls Overlay (for when real map is integrated) */}
+            <div className="absolute top-4 left-4 bg-white rounded-lg shadow-sm border border-gray-200 p-2">
+              <div className="space-y-2">
+                <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
+                  <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                  <span>Schools</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
+                  <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                  <span>Parks</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
+                  <span className="w-3 h-3 bg-orange-500 rounded-full"></span>
+                  <span>Shopping</span>
+                </button>
+                <button className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded w-full text-left">
+                  <span className="w-3 h-3 bg-red-500 rounded-full"></span>
+                  <span>Healthcare</span>
+                </button>
               </div>
-              
-              {/* Map Legend */}
-              <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-sm border border-gray-200 p-3">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">Community Boundaries</h4>
-                <div className="flex items-center space-x-2 text-xs text-gray-600">
-                  <div className="w-4 h-1 bg-blue-900 rounded"></div>
-                  <span>{communityData.name} Area</span>
-                </div>
+            </div>
+            
+            {/* Map Legend */}
+            <div className="absolute bottom-4 right-4 bg-white rounded-lg shadow-sm border border-gray-200 p-3">
+              <h4 className="text-sm font-medium text-gray-900 mb-2">Community Boundaries</h4>
+              <div className="flex items-center space-x-2 text-xs text-gray-600">
+                <div className="w-4 h-1 bg-blue-900 rounded"></div>
+                <span>{communityData.name} Area</span>
               </div>
             </div>
           </div>

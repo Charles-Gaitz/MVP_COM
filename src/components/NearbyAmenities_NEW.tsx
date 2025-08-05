@@ -47,84 +47,96 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
     setIsExpanded(!isExpanded);
   };
 
-  // Fallback amenities data for demo purposes
+  // Fallback amenities data for demo purposes - OBVIOUSLY SAMPLE DATA
   const getFallbackAmenitiesData = (id: string): AmenitiesData => {
     const fallbackData = {
       westlake: {
         grocery: [
           { 
-            name: 'H-E-B Plus!', 
+            placeId: 'sample_grocery_1',
+            name: '🔮 Sample Perfect Grocery Store', 
             type: 'Grocery Store', 
-            distance: '1.2 miles', 
-            driveTime: '4 min', 
-            rating: 4.5, 
-            address: '4821 Bee Cave Rd', 
-            hours: '6AM-12AM',
-            priceLevel: '$$',
-            phoneNumber: '(512) 899-4300',
-            website: 'https://www.heb.com'
+            distance: '1.0 miles', // Round number
+            driveTime: '5 min', // Round number
+            rating: 5.0, // Perfect rating
+            priceLevel: 2,
+            address: '🔮 123 Sample Street', 
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-0000',
+            website: 'https://sample-store.example',
+            photos: []
           },
           { 
-            name: 'Whole Foods Market', 
+            placeId: 'sample_grocery_2',
+            name: '🔮 Sample Organic Market', 
             type: 'Organic Grocery', 
-            distance: '2.1 miles', 
-            driveTime: '6 min', 
-            rating: 4.3, 
-            address: '4301 W William Cannon Dr', 
-            hours: '7AM-10PM',
-            priceLevel: '$$$',
-            phoneNumber: '(512) 899-8700',
-            website: 'https://www.wholefoodsmarket.com'
+            distance: '2.0 miles', 
+            driveTime: '10 min', 
+            rating: 5.0, 
+            priceLevel: 3,
+            address: '🔮 456 Sample Ave', 
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-0001',
+            website: 'https://sample-organic.example',
+            photos: []
           },
           { 
-            name: 'Randalls', 
+            placeId: 'sample_grocery_3',
+            name: '🔮 Sample Express Store', 
             type: 'Grocery Store', 
-            distance: '1.8 miles', 
-            driveTime: '5 min', 
-            rating: 4.1, 
-            address: '3300 Bee Cave Rd', 
-            hours: '6AM-11PM',
-            priceLevel: '$$',
-            phoneNumber: '(512) 327-3775',
-            website: 'https://www.randalls.com'
+            distance: '1.5 miles', 
+            driveTime: '7 min', 
+            rating: 5.0, 
+            priceLevel: 2,
+            address: '🔮 789 Sample Blvd', 
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-0002',
+            website: 'https://sample-express.example',
+            photos: []
           }
         ],
         healthcare: [
           { 
-            name: 'St. David\'s South Austin Medical Center', 
+            placeId: 'sample_hospital_1',
+            name: '🔮 Sample Perfect Medical Center', 
             type: 'Hospital', 
-            distance: '3.2 miles', 
-            driveTime: '8 min', 
-            rating: 4.2, 
-            address: '901 W Ben White Blvd',
-            hours: '24 hours',
-            priceLevel: '$$$',
-            phoneNumber: '(512) 544-8000',
-            website: 'https://www.stdavids.com'
+            distance: '3.0 miles', 
+            driveTime: '15 min', 
+            rating: 5.0, 
+            priceLevel: 3,
+            address: '🔮 1000 Sample Medical Dr',
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-1000',
+            website: 'https://sample-medical.example',
+            photos: []
           },
           { 
-            name: 'Austin Regional Clinic', 
+            placeId: 'sample_clinic_1',
+            name: '🔮 Sample Family Clinic', 
             type: 'Primary Care', 
-            distance: '1.5 miles', 
-            driveTime: '4 min', 
-            rating: 4.4, 
-            address: '2800 Bee Cave Rd',
-            hours: '8AM-5PM',
-            priceLevel: '$$',
-            phoneNumber: '(512) 324-3400',
-            website: 'https://www.austinregionalclinic.com'
+            distance: '1.0 miles', 
+            driveTime: '5 min', 
+            rating: 5.0, 
+            priceLevel: 2,
+            address: '🔮 2000 Sample Care Rd',
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-2000',
+            website: 'https://sample-clinic.example',
+            photos: []
           },
           { 
-            name: 'CVS Pharmacy', 
+            placeId: 'sample_pharmacy_1',
+            name: '🔮 Sample Pharmacy Plus', 
             type: 'Pharmacy', 
-            distance: '1.1 miles', 
+            distance: '1.0 miles',
             driveTime: '3 min', 
-            rating: 4.0, 
-            address: '4301 Bee Cave Rd', 
-            hours: '8AM-10PM',
-            priceLevel: '$$',
-            phoneNumber: '(512) 327-2887',
-            website: 'https://www.cvs.com'
+            rating: 5.0, 
+            priceLevel: 2,
+            address: '🔮 3000 Sample Pharmacy St', 
+            hours: '24/7',
+            phoneNumber: '🔮 (555) 000-3000',
+            website: 'https://sample-pharmacy.example',
+            photos: []
           }
         ],
         dining: [
@@ -203,7 +215,34 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
             website: 'https://www.austintexas.gov/department/zilker-metropolitan-park'
           }
         ],
-        lastUpdated: new Date().toISOString()
+        education: [
+          {
+            name: '🔮 Sample Perfect Library',
+            type: 'Library',
+            distance: '0.5 miles',
+            driveTime: '2 min',
+            rating: 5.0,
+            address: '🔮 100 Sample Library Ln',
+            hours: '24/7',
+            priceLevel: 'Free',
+            phoneNumber: '🔮 (555) 000-3000',
+            website: 'https://sample-library.example'
+          }
+        ],
+        shopping: [
+          {
+            name: '🔮 Sample Perfect Mall',
+            type: 'Shopping Mall',
+            distance: '2.0 miles',
+            driveTime: '10 min',
+            rating: 5.0,
+            address: '🔮 500 Sample Mall Dr',
+            hours: '10AM-9PM',
+            priceLevel: '$$',
+            phoneNumber: '🔮 (555) 000-4000',
+            website: 'https://sample-mall.example'
+          }
+        ]
       },
       plano: {
         grocery: [
@@ -517,7 +556,7 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
       }
     };
     
-    return fallbackData[id as keyof typeof fallbackData] || fallbackData.westlake;
+    return (fallbackData[id as keyof typeof fallbackData] || fallbackData.westlake) as unknown as AmenitiesData;
   };
 
   // Loading state
@@ -563,8 +602,20 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
     }
   };
 
-  const getPriceLevelColor = (priceLevel: string) => {
-    switch (priceLevel) {
+  const getPriceLevelColor = (priceLevel: string | number) => {
+    // Convert number to string representation
+    let level = priceLevel;
+    if (typeof priceLevel === 'number') {
+      switch (priceLevel) {
+        case 1: level = '$'; break;
+        case 2: level = '$$'; break;
+        case 3: level = '$$$'; break;
+        case 4: level = '$$$$'; break;
+        default: level = '$$'; break;
+      }
+    }
+    
+    switch (level) {
       case '$': return 'text-green-600 bg-green-100';
       case '$$': return 'text-blue-600 bg-blue-100';
       case '$$$': return 'text-orange-600 bg-orange-100';
@@ -637,6 +688,25 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
 
       {isExpanded && (
         <div className="p-6 space-y-8">
+          {/* Sample Data Warning Banner */}
+          {error && (
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+              <div className="flex items-center">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-amber-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <p className="text-sm text-amber-800">
+                    <strong>🔮 SAMPLE DATA DISPLAYED</strong> - Places API temporarily unavailable. 
+                    This is obviously fake demonstration data with crystal ball emojis and perfect ratings.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {categories.map((category) => (
             <div key={category}>
               <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
@@ -645,7 +715,7 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
               </h3>
               <div className="space-y-4">
                 {currentAmenitiesData[category].map((place, index) => (
-                  <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                  <div key={index} className={`border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 ${error ? 'bg-amber-50 border-amber-200' : 'border-gray-200'}`}>
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h4 className="text-lg font-semibold text-gray-900 mb-1">{place.name}</h4>
@@ -770,7 +840,7 @@ export function NearbyAmenities({ communityId, communityName }: NearbyAmenitiesP
           <div className="text-xs text-gray-500 bg-gray-50 rounded p-3">
             <p className="font-medium mb-1">Data Sources:</p>
             <p>{error ? 'Sample data for demonstration purposes' : 'Google Places API - Real-time business data, ratings, and hours'}</p>
-            <p>Last updated: {new Date(currentAmenitiesData.lastUpdated).toLocaleDateString()}</p>
+            <p>Last updated: {new Date().toLocaleDateString()}</p>
           </div>
         </div>
       )}
